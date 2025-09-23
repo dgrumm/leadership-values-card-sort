@@ -1,4 +1,4 @@
-# ♥️ Leadership Values Card Sort
+# 🂱 Leadership Values Card Sort
 
 An interactive card-sorting exercise for identifying core leadership values through progressive reduction (40→8→3 cards). Built with real-time collaboration features for team workshops and individual reflection.
 
@@ -76,6 +76,7 @@ NODE_ENV=development
 - Multiple people can join the same session
 - See real-time presence indicators
 - Each participant maintains their own card selections
+- Participants can choose to reveal their cards to others, or keep them private
 - Perfect for team workshops and group discussions
 
 ## 🛠 Tech Stack
@@ -149,6 +150,22 @@ Then load it with:
 npm run build:csv
 ```
 
+# API Documentation
+
+## Session Management
+- `POST /api/sessions` - Create new session
+- `GET /api/sessions/:code` - Join existing session
+- `DELETE /api/sessions/:code` - End session
+
+## Real-time Events (Ably)
+- Channel: `session:${sessionCode}`
+- Events: `card-moved`, `participant-joined`, `step-completed`, `reveal-toggled`
+
+## Error Codes
+- `SESSION_NOT_FOUND` - Invalid session code
+- `SESSION_FULL` - Maximum participants reached
+- `INVALID_PARTICIPANT` - Participant validation failed
+
 
 ## 🚀 Deployment Guide
 
@@ -165,17 +182,11 @@ npm start
 NODE_ENV=production
 ABLY_API_KEY=your_ably_key_here
 NEXT_PUBLIC_APP_URL=https://your-domain.com
-
-# Optional
-NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
 ```
 
 ## Production Checklist
 - [ ] Environment variables configured
 - [ ] SSL certificate installed
-- [ ] CDN configured for static assets
-- [ ] Health check endpoint responding
-- [ ] Error monitoring configured
 
 ## 🤝 Contributing
 
@@ -199,9 +210,11 @@ NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
 This project serves as both a functional leadership development tool and a **case study in agentic AI development practices**. It was built with extensive assistance from AI agents to evaluate and improve human-AI collaboration workflows.
 
 ### AI Development Tools Used:
-- **[Augment Code](https://augmentcode.com/)**: Primary development assistant for architecture, implementation, and testing
-- **[Claude](https://claude.ai/)**: Code review, documentation, and problem-solving support
+
+- **[Claude](https://claude.ai/)**: Product requirements documentation, specificiation writing
+- **[Claude Code](https://www.anthropic.com/claude-code)**: Planning, primary development assistant for architecture, implementation and testing
 - **[GitHub Copilot](https://github.com/features/copilot)**: Code completion and suggestion assistance
+- **[Augment Code](https://augmentcode.com/)**: Later entrant into my workflow, started as cdde review, documentation, and problem-solving support... and architecture refactoring
 
 ### Agentic Development Artifacts:
 The repository includes comprehensive supporting materials designed to guide AI agents through complex development tasks:
@@ -240,7 +253,7 @@ This project is licensed under the **Creative Commons Attribution-ShareAlike 4.0
 
 ### Attribution Example:
 ```
-Leadership Values Cards by [Original Author]
+Leadership Values Cards by dgrummm
 Licensed under CC BY-SA 4.0
 Original: https://github.com/dgrumm/leadership-values-card-sort
 ```
@@ -255,31 +268,3 @@ This license ensures the educational content remains open and accessible while e
 - Create a new issue for bug reports or feature requests
 - Review the project documentation in `/specs/` for detailed requirements
 
-## 🎨 Design System (TODO)
-
-The application follows a comprehensive design system with:
-- Consistent color palette and typography
-- Smooth animations and transitions
-- Accessibility-first approach
-- Mobile-responsive layouts
-
-For detailed design guidelines, see the project documentation.
-
-# Deployment Guide
-
-## Environment Setup
-```bash
-# Required
-ABLY_API_KEY=your_ably_key_here
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-
-# Optional
-NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
-```
-
-## Production Checklist
-- [ ] Environment variables configured
-- [ ] SSL certificate installed
-- [ ] CDN configured for static assets
-- [ ] Health check endpoint responding
-- [ ] Error monitoring configured
