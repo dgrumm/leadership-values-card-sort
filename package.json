@@ -1,7 +1,18 @@
 {
-  "name": "leadership-values-cards",
-  "version": "0.1.0",
-  "private": true,
+  "name": "leadership-values-card-sort",
+  "version": "1.0.0",
+  "description": "Interactive web application for collaborative leadership values identification through card sorting",
+  "keywords": ["leadership", "values", "collaboration", "team-building", "card-sort"],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dgrumm/leadership-values-card-sort.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dgrumm/leadership-values-card-sort/issues"
+  },
+  "homepage": "https://github.com/dgrumm/leadership-values-card-sort#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

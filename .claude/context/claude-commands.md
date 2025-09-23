@@ -10,8 +10,8 @@ Set up the complete project structure for the Leadership Values Card Sort app:
 
 1. Initialize Next.js with TypeScript:
 ```bash
-npx create-next-app@latest leadership-values-cards --typescript --tailwind --app --no-src-dir
-cd leadership-values-cards
+npx create-next-app@latest leadership-values-card-sort --typescript --tailwind --app --no-src-dir
+cd leadership-values-card-sort
 ```
 
 2. Install core dependencies:

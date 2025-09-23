@@ -521,7 +521,7 @@ Phase 04.5.4 Component Integration can now begin - the architecture foundation i
 - **Production Ready**: Code review approved, no blocking issues identified
 
 ### **Pull Request & Integration**:
-- **PR Created**: https://github.com/dgrumm/leadership-values-cards/pull/16
+- **PR Created**: https://github.com/dgrumm/leadership-values-card-sort/pull/16
 - **Code Review Status**: ✅ **APPROVED** - Production ready
 - **Branch**: `feature/03-2-animations-transitions` pushed and PR opened
 - **Status**: ✅ **MERGED** - Successfully integrated into main branch
@@ -576,7 +576,7 @@ Phase 04.5.4 Component Integration can now begin - the architecture foundation i
 - **Test Infrastructure**: Fast E2E test foundation with state injection helpers
 
 ### **Pull Request & Integration**:
-- **PR Created**: https://github.com/dgrumm/leadership-values-cards/pull/17
+- **PR Created**: https://github.com/dgrumm/leadership-values-card-sort/pull/17
 - **Code Review Status**: ✅ **APPROVED** - Exceptional implementation quality
 - **Branch**: `feature/03-3-pile-constraints` pushed and PR opened  
 - **Status**: ✅ **MERGED** - Successfully integrated into main branch

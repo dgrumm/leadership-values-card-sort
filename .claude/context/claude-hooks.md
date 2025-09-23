@@ -197,7 +197,7 @@ description: Personal development preferences (git-ignored)
 
 ## Personal Aliases
 ```bash
-alias lvc="cd ~/projects/leadership-values-cards"
+alias lvc="cd ~/projects/leadership-values-card-sort"
 alias test-multi="npm run test:e2e -- --headed --workers=3"
 alias reset-db="rm -rf .next && npm run dev"
 ```
