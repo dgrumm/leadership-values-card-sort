@@ -249,21 +249,33 @@ export default function CanvasPage() {
     const storageKey = `participant-id-${sessionData.sessionCode}-${sessionData.participantName}`;
     let storedId = localStorage.getItem(storageKey);
     
+    console.log('[v0] Checking participant ID - storageKey:', storageKey, 'storedId:', storedId);
+    
     // Validate the stored ID - if it contains invalid characters (like spaces), regenerate it
     const isValidId = storedId && /^[a-zA-Z0-9_-]+$/.test(storedId);
     
+    console.log('[v0] Validation check - isValidId:', isValidId, 'storedId:', storedId);
+    
     if (!storedId || !isValidId) {
       if (storedId && !isValidId) {
-        console.log(`🔄 [ParticipantID] Invalid cached ID found (${storedId}), regenerating...`);
+        console.log(`[v0] 🔄 Invalid cached ID found: "${storedId}" - clearing and regenerating...`);
+        // Clear the invalid cached ID
+        localStorage.removeItem(storageKey);
       }
       // Generate new stable ID: sessionCode + sanitized name + timestamp + random
       const timestamp = Date.now().toString(36);
       const random = Math.random().toString(36).substring(2, 8);
       storedId = `${sessionData.sessionCode}-${sanitizedName}-${timestamp}-${random}`;
       localStorage.setItem(storageKey, storedId);
-      console.log(`🆔 [ParticipantID] Generated new stable ID: ${storedId}`);
+      console.log(`[v0] 🆔 Generated new stable ID: "${storedId}"`);
     } else {
-      console.log(`🔄 [ParticipantID] Reusing existing stable ID: ${storedId}`);
+      console.log(`[v0] 🔄 Reusing existing valid ID: "${storedId}"`);
+    }
+    
+    // Final validation before returning
+    if (!/^[a-zA-Z0-9_-]+$/.test(storedId)) {
+      console.error('[v0] ❌ ERROR: Generated ID is still invalid!', storedId);
+      throw new Error(`Generated participant ID is invalid: ${storedId}`);
     }
     
     return storedId;
