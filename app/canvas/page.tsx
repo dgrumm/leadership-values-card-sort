@@ -241,16 +241,19 @@ export default function CanvasPage() {
 
   // Generate a stable participant ID using browser localStorage
   const participantId = (() => {
-    if (typeof window === 'undefined') return `${sessionData.sessionCode}-${sessionData.participantName}`;
+    // Sanitize participant name for use in ID (replace spaces and special chars with hyphens)
+    const sanitizedName = sessionData.participantName.replace(/[^a-zA-Z0-9_-]/g, '-');
+    
+    if (typeof window === 'undefined') return `${sessionData.sessionCode}-${sanitizedName}`;
     
     const storageKey = `participant-id-${sessionData.sessionCode}-${sessionData.participantName}`;
     let storedId = localStorage.getItem(storageKey);
     
     if (!storedId) {
-      // Generate new stable ID: sessionCode + name + timestamp + random
+      // Generate new stable ID: sessionCode + sanitized name + timestamp + random
       const timestamp = Date.now().toString(36);
       const random = Math.random().toString(36).substring(2, 8);
-      storedId = `${sessionData.sessionCode}-${sessionData.participantName}-${timestamp}-${random}`;
+      storedId = `${sessionData.sessionCode}-${sanitizedName}-${timestamp}-${random}`;
       localStorage.setItem(storageKey, storedId);
       console.log(`🆔 [ParticipantID] Generated new stable ID: ${storedId}`);
     } else {

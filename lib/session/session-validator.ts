@@ -42,8 +42,6 @@ export function validateSessionCode(sessionCode: string): ValidationResult {
 }
 
 export function validateParticipantName(name: string): ValidationResult {
-  console.log('[v0] validateParticipantName input:', JSON.stringify(name), 'length:', name?.length);
-  
   if (!name || typeof name !== 'string') {
     return { isValid: false, error: SESSION_VALIDATION_ERRORS.INVALID_PARTICIPANT_NAME };
   }
@@ -56,12 +54,10 @@ export function validateParticipantName(name: string): ValidationResult {
   // Check for potentially dangerous characters BEFORE sanitization
   // Note: Allow apostrophes (') for names like O'Brien - removed from blocked chars
   if (/[<>"&\\]/.test(name)) {
-    console.log('[v0] Name contains invalid characters:', name);
     return { isValid: false, error: 'Name contains invalid characters' };
   }
   
   const sanitized = sanitizeParticipantName(name);
-  console.log('[v0] sanitized name:', JSON.stringify(sanitized), 'length:', sanitized.length);
   
   if (sanitized.length < PARTICIPANT_NAME_MIN_LENGTH) {
     return { isValid: false, error: 'Name must be at least 1 character long' };
@@ -73,7 +69,6 @@ export function validateParticipantName(name: string): ValidationResult {
   
   // Allow alphanumeric, spaces, hyphens, underscores, apostrophes, and basic punctuation
   const namePattern = /^[a-zA-Z0-9 \-_'.!?(),]+$/;
-  console.log('[v0] testing pattern against:', JSON.stringify(sanitized), 'result:', namePattern.test(sanitized));
   if (!namePattern.test(sanitized)) {
     return { isValid: false, error: SESSION_VALIDATION_ERRORS.INVALID_PARTICIPANT_NAME };
   }
@@ -105,8 +100,6 @@ export function resolveNameConflict(desiredName: string, existingNames: Set<stri
 }
 
 export function sanitizeParticipantName(name: string): string {
-  console.log('[v0] sanitizeParticipantName input:', JSON.stringify(name));
-  
   if (!name || typeof name !== 'string') {
     return '';
   }
@@ -118,19 +111,15 @@ export function sanitizeParticipantName(name: string): string {
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
-  console.log('[v0] after HTML decode:', JSON.stringify(sanitized));
   
   // Remove control characters and non-printable characters
   sanitized = sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-  console.log('[v0] after control chars:', JSON.stringify(sanitized));
   
   // Trim whitespace and normalize multiple spaces to single space
   sanitized = sanitized.trim().replace(/\s+/g, ' ');
-  console.log('[v0] after trim/normalize:', JSON.stringify(sanitized));
   
   // Remove leading/trailing punctuation that could be problematic
   sanitized = sanitized.replace(/^[^\w\s]+|[^\w\s]+$/g, '');
-  console.log('[v0] after punctuation removal:', JSON.stringify(sanitized));
   
   return sanitized;
 }
