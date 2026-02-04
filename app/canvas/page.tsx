@@ -8,6 +8,34 @@ import { Step3Page } from '@/components/canvas/Step3Page';
 import { EventDrivenSessionProvider, useEventPublisher } from '@/contexts/EventDrivenSessionContext';
 import { useSessionStep1Store, useSessionStep2Store } from '@/hooks/stores/useSessionStores';
 
+// Clean up invalid participant IDs from localStorage on app load
+if (typeof window !== 'undefined') {
+  const invalidIdPattern = /[^a-zA-Z0-9_-]/;
+  const keysToRemove: string[] = [];
+  
+  // Scan localStorage for participant-id entries with invalid characters
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('participant-id-')) {
+      const value = localStorage.getItem(key);
+      if (value && invalidIdPattern.test(value)) {
+        console.log(`[v0] Found invalid cached participant ID: "${value}" - will clear`);
+        keysToRemove.push(key);
+      }
+    }
+  }
+  
+  // Remove all invalid entries
+  keysToRemove.forEach(key => {
+    localStorage.removeItem(key);
+    console.log(`[v0] Cleared invalid participant ID cache: ${key}`);
+  });
+  
+  if (keysToRemove.length > 0) {
+    console.log(`[v0] Cleaned up ${keysToRemove.length} invalid participant ID(s) from localStorage`);
+  }
+}
+
 // StepRouter component that uses event-driven session-scoped hooks (must be inside provider)
 function StepRouter({ 
   currentStep, 
