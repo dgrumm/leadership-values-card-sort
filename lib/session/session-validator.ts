@@ -42,6 +42,8 @@ export function validateSessionCode(sessionCode: string): ValidationResult {
 }
 
 export function validateParticipantName(name: string): ValidationResult {
+  console.log('[v0] validateParticipantName input:', JSON.stringify(name), 'length:', name?.length);
+  
   if (!name || typeof name !== 'string') {
     return { isValid: false, error: SESSION_VALIDATION_ERRORS.INVALID_PARTICIPANT_NAME };
   }
@@ -52,11 +54,14 @@ export function validateParticipantName(name: string): ValidationResult {
   }
   
   // Check for potentially dangerous characters BEFORE sanitization
-  if (/[<>'"&\\]/.test(name)) {
+  // Note: Allow apostrophes (') for names like O'Brien - removed from blocked chars
+  if (/[<>"&\\]/.test(name)) {
+    console.log('[v0] Name contains invalid characters:', name);
     return { isValid: false, error: 'Name contains invalid characters' };
   }
   
   const sanitized = sanitizeParticipantName(name);
+  console.log('[v0] sanitized name:', JSON.stringify(sanitized), 'length:', sanitized.length);
   
   if (sanitized.length < PARTICIPANT_NAME_MIN_LENGTH) {
     return { isValid: false, error: 'Name must be at least 1 character long' };
@@ -66,8 +71,9 @@ export function validateParticipantName(name: string): ValidationResult {
     return { isValid: false, error: `Name must be less than ${PARTICIPANT_NAME_MAX_LENGTH} characters` };
   }
   
-  // Allow alphanumeric, spaces, hyphens, underscores, and basic punctuation
-  const namePattern = /^[a-zA-Z0-9\s\-_.!?(),]+$/;
+  // Allow alphanumeric, spaces, hyphens, underscores, apostrophes, and basic punctuation
+  const namePattern = /^[a-zA-Z0-9 \-_'.!?(),]+$/;
+  console.log('[v0] testing pattern against:', JSON.stringify(sanitized), 'result:', namePattern.test(sanitized));
   if (!namePattern.test(sanitized)) {
     return { isValid: false, error: SESSION_VALIDATION_ERRORS.INVALID_PARTICIPANT_NAME };
   }
