@@ -25,7 +25,8 @@ export function validateName(name: string): ValidationResult {
   }
   
   // Allow alphanumeric, spaces, hyphens, and common punctuation
-  const validNamePattern = /^[a-zA-Z0-9\s\-'\.]+$/;
+  const validNamePattern = /^[a-zA-Z0-9 \-'\.]+$/;
+  console.log('[v0] validateName:', JSON.stringify(trimmedName), 'pattern test:', validNamePattern.test(trimmedName));
   if (!validNamePattern.test(trimmedName)) {
     return { isValid: false, error: 'Name can only contain letters, numbers, spaces, and hyphens' };
   }

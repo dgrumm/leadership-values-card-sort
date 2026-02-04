@@ -32,7 +32,9 @@ export function LoginForm() {
   }, [isLoaded, storedData]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatName(e.target.value);
+    const rawValue = e.target.value;
+    const formatted = formatName(rawValue);
+    console.log('[v0] LoginForm handleNameChange - raw:', JSON.stringify(rawValue), 'formatted:', JSON.stringify(formatted));
     setFormData(prev => ({ ...prev, name: formatted }));
     updateField('name', formatted);
     clearError();
