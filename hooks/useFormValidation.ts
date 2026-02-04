@@ -43,7 +43,9 @@ export function useFormValidation({
     const debounced = (currentName: string, currentSessionCode: string) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
+        console.log('[v0] useFormValidation validating name:', JSON.stringify(currentName));
         const nameValidation = validateName(currentName);
+        console.log('[v0] useFormValidation nameValidation result:', nameValidation);
         const sessionCodeValidation = validateSessionCode(currentSessionCode);
         
         const newValidation: FormValidation = {
