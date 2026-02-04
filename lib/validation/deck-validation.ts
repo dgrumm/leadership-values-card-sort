@@ -97,7 +97,7 @@ export class DeckValidator {
     valueNames: Set<string>,
     errors: ValidationError[],
     warnings: ValidationError[],
-    info: ValidationError[]
+    _info: ValidationError[]
   ): void {
     const cardContext = `Card ${index + 1}`;
 
