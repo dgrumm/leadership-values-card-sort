@@ -79,6 +79,6 @@ export function formatSessionCode(input: string): string {
  */
 export function formatName(input: string): string {
   return input
-    .replace(/[^a-zA-Z0-9\s\-'\.]/g, '')
+    .replace(/[^a-zA-Z0-9 \-'\.]/g, '')
     .slice(0, 50);
 }
