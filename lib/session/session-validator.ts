@@ -105,6 +105,8 @@ export function resolveNameConflict(desiredName: string, existingNames: Set<stri
 }
 
 export function sanitizeParticipantName(name: string): string {
+  console.log('[v0] sanitizeParticipantName input:', JSON.stringify(name));
+  
   if (!name || typeof name !== 'string') {
     return '';
   }
@@ -116,15 +118,19 @@ export function sanitizeParticipantName(name: string): string {
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
+  console.log('[v0] after HTML decode:', JSON.stringify(sanitized));
   
   // Remove control characters and non-printable characters
   sanitized = sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+  console.log('[v0] after control chars:', JSON.stringify(sanitized));
   
   // Trim whitespace and normalize multiple spaces to single space
   sanitized = sanitized.trim().replace(/\s+/g, ' ');
+  console.log('[v0] after trim/normalize:', JSON.stringify(sanitized));
   
   // Remove leading/trailing punctuation that could be problematic
   sanitized = sanitized.replace(/^[^\w\s]+|[^\w\s]+$/g, '');
+  console.log('[v0] after punctuation removal:', JSON.stringify(sanitized));
   
   return sanitized;
 }
