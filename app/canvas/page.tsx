@@ -249,7 +249,13 @@ export default function CanvasPage() {
     const storageKey = `participant-id-${sessionData.sessionCode}-${sessionData.participantName}`;
     let storedId = localStorage.getItem(storageKey);
     
-    if (!storedId) {
+    // Validate the stored ID - if it contains invalid characters (like spaces), regenerate it
+    const isValidId = storedId && /^[a-zA-Z0-9_-]+$/.test(storedId);
+    
+    if (!storedId || !isValidId) {
+      if (storedId && !isValidId) {
+        console.log(`🔄 [ParticipantID] Invalid cached ID found (${storedId}), regenerating...`);
+      }
       // Generate new stable ID: sessionCode + sanitized name + timestamp + random
       const timestamp = Date.now().toString(36);
       const random = Math.random().toString(36).substring(2, 8);
