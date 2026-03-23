@@ -67,7 +67,7 @@
     "autoprefixer": "^10.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^8",
-    "eslint-config-next": "15.4.7",
+    "eslint-config-next": "15.4.10",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "playwright": "^1.54.2",
