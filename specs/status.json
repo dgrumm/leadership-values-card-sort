@@ -1,0 +1,20 @@
+{
+  "specs": [
+    { "id": "00.1", "title": "Repo & CI skeleton", "phase": "00-foundation", "depends_on": [], "status": "not-started" },
+    { "id": "00.2", "title": "Shared schemas & game engine", "phase": "00-foundation", "depends_on": ["00.1"], "status": "not-started" },
+    { "id": "00.3", "title": "Design tokens & primitives", "phase": "00-foundation", "depends_on": ["00.1"], "status": "not-started" },
+    { "id": "01.1", "title": "Session Durable Object", "phase": "01-core", "depends_on": ["00.2"], "status": "not-started" },
+    { "id": "01.2", "title": "Client session layer", "phase": "01-core", "depends_on": ["01.1"], "status": "not-started" },
+    { "id": "01.3", "title": "Sort loop", "phase": "01-core", "depends_on": ["00.2", "00.3"], "status": "not-started" },
+    { "id": "01.4", "title": "Round flow", "phase": "01-core", "depends_on": ["01.3"], "status": "not-started" },
+    { "id": "02.1", "title": "Presence & progress", "phase": "02-multiplayer", "depends_on": ["01.2", "01.4"], "status": "not-started" },
+    { "id": "02.2", "title": "Reveal", "phase": "02-multiplayer", "depends_on": ["02.1"], "status": "not-started" },
+    { "id": "02.3", "title": "Results wall", "phase": "02-multiplayer", "depends_on": ["02.2"], "status": "not-started" },
+    { "id": "03.1", "title": "Game designer", "phase": "03-config", "depends_on": ["01.1"], "status": "not-started" },
+    { "id": "03.2", "title": "Custom decks", "phase": "03-config", "depends_on": ["03.1"], "status": "not-started" },
+    { "id": "03.3", "title": "Themes & adaptive palette", "phase": "03-config", "depends_on": ["03.1", "00.3"], "status": "not-started" },
+    { "id": "03.4", "title": "Facilitator panel", "phase": "03-config", "depends_on": ["02.3", "03.1"], "status": "not-started" },
+    { "id": "04.1", "title": "Export", "phase": "04-finish", "depends_on": ["02.3"], "status": "not-started" },
+    { "id": "04.2", "title": "Hardening", "phase": "04-finish", "depends_on": ["00.1", "00.2", "00.3", "01.1", "01.2", "01.3", "01.4", "02.1", "02.2", "02.3", "03.1", "03.2", "03.3", "03.4", "04.1"], "status": "not-started" }
+  ]
+}
