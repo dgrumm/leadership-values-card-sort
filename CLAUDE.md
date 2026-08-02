@@ -44,10 +44,17 @@ docs/     # design/PRD/architecture, ADRs
 1. Pick the next spec from `specs/` in dependency order (check `specs/status.json`).
 2. Work in a worktree on branch `feature/<spec-id>` (e.g. `feature/01-3-sort-loop`).
 3. Loop: implement → `pnpm gate` → self-review against the spec's acceptance checklist →
-   iterate until green.
+   iterate until green. Implementation runs under the `ponytail` skill (full): stop at the
+   first solution that holds, no speculative abstractions, shortest working diff.
 4. Update status via `pnpm spec:status` (script-generated — never hand-edit status).
-5. PR to `v2` titled `feat(<spec-id>): <description>` with spec link, checked criteria, and
+5. Before PR: a `ponytail-review` pass (over-engineering hunt) plus a correctness review on
+   the diff; apply what survives scrutiny.
+6. PR to `v2` titled `feat(<spec-id>): <description>` with spec link, checked criteria, and
    test evidence. Human review is the checkpoint.
+
+**Model tiering:** implementation loops run on Sonnet (specs are the reasoning; loops are
+execution against a hard gate). Orchestration, spec authoring, and design judgment stay on
+the session's frontier model. Escalate an individual loop only if it repeatedly fails its gate.
 
 **Gates (all must pass before any PR):**
 ```bash
