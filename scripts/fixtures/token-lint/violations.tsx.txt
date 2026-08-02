@@ -1,0 +1,8 @@
+// Token-lint fixture: every line below must be flagged when placed under app/src/.
+export function Bad() {
+  return (
+    <div className="bg-blue-500 z-[999]" style={{ color: '#ff0000' }}>
+      raw values everywhere
+    </div>
+  );
+}

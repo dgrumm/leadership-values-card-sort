@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+/*
+ * Placeholder design tokens. Real tokens land in spec 00.3.
+ * All color/spacing/z-index/motion in app/src/ must come through these
+ * tokens — the token-lint gate forbids raw palette classes and hex
+ * literals everywhere outside app/src/theme/.
+ */
+@theme {
+  --color-surface: #faf9f5;
+  --color-surface-raised: #ffffff;
+  --color-ink: #1a1a18;
+  --color-ink-muted: #6b6a64;
+  --color-accent: #b3541e;
+  --color-accent-contrast: #ffffff;
+
+  --z-base: 0;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+
+  --duration-swipe: 250ms;
+  --duration-reveal: 400ms;
+}
