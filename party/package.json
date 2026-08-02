@@ -1,0 +1,19 @@
+{
+  "name": "@values-cards/party",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@values-cards/shared": "workspace:*",
+    "partyserver": "^0.5.9"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260730.1",
+    "typescript": "^5.9.0",
+    "wrangler": "^4.0.0"
+  }
+}
