@@ -11,6 +11,10 @@ export interface UseSessionResult {
   /** Builds the wire envelope (attaches the stored `token`, or a passed `creatorToken` on
    *  `join`) and sends now if `live`, otherwise queues (FIFO) for delivery after resume. */
   send: (intent: Intent, creatorToken?: string) => void;
+  /** The most recent `error` event (e.g. a rejected reveal) — transient, not session state.
+   *  Callers surface it (a Toast) and clear it once shown. */
+  error: { code: string; message: string } | null;
+  clearError: () => void;
 }
 
 function wsUrl(code: string): string {
@@ -52,6 +56,7 @@ export function useSession(code: string): UseSessionResult {
   const store = useMemo(() => createSessionStore(), []);
   const state = store((s) => s.state);
   const [connection, setConnection] = useState<ConnectionState>('connecting');
+  const [error, setError] = useState<{ code: string; message: string } | null>(null);
 
   const socketRef = useRef<WebSocket | null>(null);
   const queueRef = useRef<Array<{ intent: Intent; creatorToken?: string }>>([]);
@@ -112,6 +117,7 @@ export function useSession(code: string): UseSessionResult {
         }
         if (evt.type === 'error') {
           dispatch({ type: 'error', code: evt.code });
+          setError({ code: evt.code, message: evt.message });
         }
       });
 
@@ -165,7 +171,7 @@ export function useSession(code: string): UseSessionResult {
     };
   }
 
-  return { state, connection, send };
+  return { state, connection, send, error, clearError: () => setError(null) };
 }
 
 /** Attaches the transport-level auth field the DO expects alongside the reducer intent. */

@@ -27,6 +27,8 @@ export interface SortState {
   ranking?: string[];
   rankConfirmed: boolean;
   lastAction?: SortAction;
+  /** Rounds whose reveal prompt this participant dismissed (02.2 decision: per-round, never blocks progression). */
+  dismissedReveals: number[];
 }
 
 export type SortPhase = 'sort' | 'round-complete' | 'trim' | 'rank' | 'result';
@@ -66,6 +68,8 @@ export interface SortStore extends SortState {
   setRanking: (order: string[]) => void;
   /** Locks in the final order (defaulting to kept order if the board was never touched). */
   confirmRank: () => void;
+  /** Dismisses the reveal prompt for one round — never blocks progression, just hides the ask. */
+  dismissReveal: (round: number) => void;
 }
 
 function initialQueue(config: GameConfig, participantId: string, round: number): string[] {
@@ -91,6 +95,7 @@ export function createSortStore(sessionCode: string, participantId: string, conf
         totalDiscarded: 0,
         cut: [],
         rankConfirmed: false,
+        dismissedReveals: [],
 
         keep: (cardId) => {
           const state = get();
@@ -208,6 +213,12 @@ export function createSortStore(sessionCode: string, participantId: string, conf
         confirmRank: () => {
           const state = get();
           set({ ranking: state.ranking ?? state.kept, rankConfirmed: true });
+        },
+
+        dismissReveal: (round) => {
+          const state = get();
+          if (state.dismissedReveals.includes(round)) return;
+          set({ dismissedReveals: [...state.dismissedReveals, round] });
         },
       }),
       { name: `vc:${sessionCode}:${participantId}:sort` },

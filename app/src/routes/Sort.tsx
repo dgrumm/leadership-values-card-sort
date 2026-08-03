@@ -3,7 +3,9 @@ import { GameConfigSchema, type Card, type GameConfig, type SessionState } from 
 import { Button } from '../components/Button';
 import { GameCard } from '../components/GameCard';
 import { GatedContinue } from '../components/GatedContinue';
+import { RevealControl } from '../components/RevealControl';
 import { Roster } from '../components/Roster';
+import { Toast } from '../components/Toast';
 import { RankBoard } from '../engine-ui/RankBoard';
 import { SortRound } from '../engine-ui/SortRound';
 import { TrimGrid } from '../engine-ui/TrimGrid';
@@ -78,11 +80,19 @@ export function Sort() {
 /** A real joined session (02.1): lobby, roster, milestone reporting, gated rounds. */
 function SessionSort({ code }: { code: string }) {
   const token = useMemo(() => loadToken(code), [code]);
-  const { state, connection, send } = useSession(code);
+  const { state, connection, send, error, clearError } = useSession(code);
 
   useEffect(() => {
     if (!token) window.location.assign(`/join/${code}`);
   }, [token, code]);
+
+  // A rejected reveal (or any other intent) surfaces here without breaking the flow —
+  // the participant stays exactly where they were (spec 02.2's "client remains functional").
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(clearError, 4000);
+    return () => clearTimeout(timer);
+  }, [error, clearError]);
 
   if (!token || !state) {
     return (
@@ -106,6 +116,11 @@ function SessionSort({ code }: { code: string }) {
   return (
     <>
       <ConnectionPill connection={connection} />
+      {error ? (
+        <div className="fixed inset-x-0 top-4 z-toast flex justify-center">
+          <Toast message={error.message} variant="danger" />
+        </div>
+      ) : null}
       {state.phase === 'lobby' ? (
         <Lobby state={state} participantId={token.participantId} send={send} />
       ) : (
@@ -182,7 +197,16 @@ function ActiveSort({
       <div className="fixed right-4 top-4 z-toast">
         <Roster participants={state.participants} selfId={participantId} collapsible />
       </div>
-      <SortBody config={config} useSortStore={useSortStore} phase={phase} byId={byId} gate={state.gate} />
+      <SortBody
+        config={config}
+        useSortStore={useSortStore}
+        phase={phase}
+        byId={byId}
+        gate={state.gate}
+        participantId={participantId}
+        reveals={state.reveals[participantId] ?? {}}
+        send={send}
+      />
     </>
   );
 }
@@ -193,14 +217,38 @@ function SortBody({
   phase,
   byId,
   gate,
+  participantId,
+  reveals,
+  send,
 }: {
   config: GameConfig;
   useSortStore: SortStoreHook;
   phase: ReturnType<typeof getPhase>;
   byId: Map<string, Card>;
   gate: SessionState['gate'];
+  participantId: string;
+  reveals: SessionState['reveals'][string];
+  send: UseSessionResult['send'];
 }) {
   const state = useSortStore();
+
+  // Shared by both reveal surfaces (round-complete, result) — only which cards differ.
+  function revealControlFor(roundCfg: GameConfig['rounds'][number], cards: Card[]) {
+    return (
+      <RevealControl
+        round={state.round}
+        roundName={roundCfg.name}
+        ranked={roundCfg.rank}
+        revealed={!!reveals[state.round]}
+        dismissed={state.dismissedReveals.includes(state.round)}
+        onDismiss={() => useSortStore.getState().dismissReveal(state.round)}
+        onReveal={() =>
+          send(intents.reveal(participantId, state.round, { cards, ranked: roundCfg.rank, revealedAt: Date.now() }))
+        }
+        onUnreveal={() => send(intents.unreveal(participantId, state.round))}
+      />
+    );
+  }
 
   if (phase === 'sort') {
     return <SortRound config={config} useSortStore={useSortStore} />;
@@ -216,6 +264,7 @@ function SortBody({
           {state.kept.length} kept · {setAside} set aside
         </p>
         <GatedContinue gate={gate} nextRound={state.round + 1} onContinue={() => useSortStore.getState().continueRound()} />
+        {roundCfg ? revealControlFor(roundCfg, cardsInOrder(state.kept, byId)) : null}
       </main>
     );
   }
@@ -244,10 +293,10 @@ function SortBody({
     );
   }
 
-  // result — local-only plaque preview; reveal (02.2), wall (02.3) and
-  // export (04.1) build on this later.
+  // result — local-only plaque preview; wall (02.3) and export (04.1) build on this later.
+  const finalRoundCfg = config.rounds[state.round - 1];
   const finalCards = cardsInOrder(state.ranking ?? state.kept, byId);
-  const isRanked = config.rounds[config.rounds.length - 1]?.rank === true;
+  const isRanked = finalRoundCfg?.rank === true;
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 bg-surface p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{config.title}</h1>
@@ -261,9 +310,7 @@ function SortBody({
         ))}
       </ol>
       <div className="flex gap-4">
-        <Button variant="secondary" disabled title="Coming soon">
-          Reveal
-        </Button>
+        {finalRoundCfg ? revealControlFor(finalRoundCfg, finalCards) : null}
         <Button variant="secondary" disabled title="Coming soon">
           Download
         </Button>
