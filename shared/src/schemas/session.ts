@@ -39,5 +39,7 @@ export const SessionStateSchema = z.object({
   spotlight: z.union([UuidSchema, z.null()]),
   gate: z.union([z.object({ openRound: z.number().int().nonnegative() }), z.null()]),
   processedIntents: z.record(UuidSchema, z.array(z.string())),
+  /** Bounded LRU of join intentId -> minted participantId, so a replayed `join` is a no-op too. */
+  processedJoins: z.record(UuidSchema, UuidSchema),
 });
 export type SessionState = z.infer<typeof SessionStateSchema>;

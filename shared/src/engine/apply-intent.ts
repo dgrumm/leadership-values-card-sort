@@ -38,6 +38,14 @@ function alreadyProcessed(state: SessionState, participantId: string, intentId: 
   return (state.processedIntents[participantId] ?? []).includes(intentId);
 }
 
+/** Records a join intentId -> minted participantId, bounded like the per-participant LRU. */
+function recordJoin(state: SessionState, intentId: string, participantId: string): SessionState {
+  const entries = [...Object.entries(state.processedJoins), [intentId, participantId] as const].slice(
+    -PROCESSED_INTENTS_CAP,
+  );
+  return { ...state, processedJoins: Object.fromEntries(entries) };
+}
+
 function requireParticipant(state: SessionState, participantId: string): Participant | undefined {
   return state.participants[participantId];
 }
@@ -48,15 +56,20 @@ function requireParticipant(state: SessionState, participantId: string): Partici
  * needed because `join` mints a new opaque identity the caller can't supply.
  */
 export function applyIntent(state: SessionState, intent: Intent, deps: ApplyIntentDeps = defaultDeps): ApplyIntentResult {
-  // Idempotency: a replayed intentId is a no-op returning the *current* state
-  // and no events. `join` has no participantId to key on yet, so it isn't
-  // deduped here — a client that must not double-join uses `rejoin` instead.
+  // Idempotency: a replayed intentId is a no-op returning the *current* state and no
+  // events. `join` has no participantId yet (the reducer mints one), so it's deduped
+  // separately via `processedJoins` inside the 'join' case below.
   if (intent.type !== 'join' && alreadyProcessed(state, intent.participantId, intent.intentId)) {
     return ok(state, []);
   }
 
   switch (intent.type) {
     case 'join': {
+      // Idempotency: a replayed join intentId is a no-op on current state — it must never
+      // mint a second participant (e.g. a second facilitator) for a retried ack.
+      if (intent.intentId in state.processedJoins) {
+        return ok(state, []);
+      }
       if (state.phase === 'concluded') {
         return reject('SESSION_CONCLUDED', 'cannot join a concluded session');
       }
@@ -69,10 +82,14 @@ export function applyIntent(state: SessionState, intent: Intent, deps: ApplyInte
         connected: true,
         progress: { round: 1, sorted: 0, kept: 0, done: false },
       };
-      const next: SessionState = {
-        ...state,
-        participants: { ...state.participants, [participantId]: participant },
-      };
+      const next: SessionState = recordJoin(
+        {
+          ...state,
+          participants: { ...state.participants, [participantId]: participant },
+        },
+        intent.intentId,
+        participantId,
+      );
       return ok(next, [{ type: 'state', state: next }]);
     }
 
@@ -154,6 +171,10 @@ export function applyIntent(state: SessionState, intent: Intent, deps: ApplyInte
       }
       if (intent.snapshot.ranked !== roundCfg.rank) {
         return reject('RANK_MISMATCH', `this round's ranked flag must be ${roundCfg.rank}`);
+      }
+      const deckValues = new Set(state.config.deck.cards.map((card) => card.value));
+      if (!intent.snapshot.cards.every((card) => deckValues.has(card.value))) {
+        return reject('UNKNOWN_CARD', 'revealed cards must exist in this game\'s deck');
       }
       const reveals = {
         ...state.reveals,

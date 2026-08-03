@@ -48,6 +48,7 @@ function baseState(overrides: Partial<SessionState> = {}): SessionState {
     spotlight: null,
     gate: null,
     processedIntents: {},
+    processedJoins: {},
     ...overrides,
   };
 }
@@ -72,6 +73,22 @@ describe('applyIntent: join', () => {
     const state = baseState({ phase: 'concluded' });
     const result = applyIntent(state, { type: 'join', intentId: 'i1', name: 'Ada' }, deps());
     expect('rejection' in result).toBe(true);
+  });
+
+  it('a replayed join intentId is a no-op: one participant, unchanged state', () => {
+    const state = baseState({ participants: {} });
+    const intent = { type: 'join' as const, intentId: 'i1', name: 'Ada' };
+    const first = applyIntent(state, intent, deps(OUTSIDER));
+    if ('rejection' in first) throw new Error('unexpected rejection');
+    expect(Object.keys(first.state.participants)).toHaveLength(1);
+
+    // Different `deps` (a distinct minted id) proves the replay is short-circuited by
+    // the intentId dedup, not coincidentally producing the same id twice.
+    const second = applyIntent(first.state, intent, deps(PARTICIPANT));
+    if ('rejection' in second) throw new Error('unexpected rejection');
+    expect(second.state).toEqual(first.state);
+    expect(second.events).toEqual([]);
+    expect(Object.keys(second.state.participants)).toHaveLength(1);
   });
 });
 
@@ -207,6 +224,17 @@ describe('applyIntent: reveal', () => {
   it('rejects a mismatched ranked flag', () => {
     const state = baseState({ phase: 'active' });
     const snapshot = { cards: [state.config.deck.cards[0]!, state.config.deck.cards[1]!, state.config.deck.cards[2]!], ranked: true, revealedAt: 1 };
+    const result = applyIntent(state, { type: 'reveal', intentId: 'i1', participantId: PARTICIPANT, round: 1, snapshot });
+    expect('rejection' in result).toBe(true);
+  });
+
+  it('rejects a snapshot card that is not in the deck', () => {
+    const state = baseState({ phase: 'active' });
+    const snapshot = {
+      cards: [state.config.deck.cards[0]!, state.config.deck.cards[1]!, { value: 'Fabricated', description: 'not real' }],
+      ranked: false,
+      revealedAt: 1,
+    };
     const result = applyIntent(state, { type: 'reveal', intentId: 'i1', participantId: PARTICIPANT, round: 1, snapshot });
     expect('rejection' in result).toBe(true);
   });

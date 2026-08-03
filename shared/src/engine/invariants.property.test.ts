@@ -32,6 +32,7 @@ function initialState(): SessionState {
     spotlight: null,
     gate: null,
     processedIntents: {},
+    processedJoins: {},
   };
 }
 
