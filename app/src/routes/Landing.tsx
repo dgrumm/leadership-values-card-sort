@@ -6,7 +6,7 @@ export function Landing() {
       <nav aria-label="Get started" className="flex gap-4">
         <a
           href="#start"
-          className="rounded-lg bg-accent px-6 py-3 font-semibold text-accent-contrast"
+          className="rounded-lg bg-accent px-6 py-3 font-semibold text-on-accent"
         >
           Start a session
         </a>
