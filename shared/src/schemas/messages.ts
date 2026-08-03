@@ -7,7 +7,14 @@ const intentId = { intentId: UuidSchema };
 const participant = { participantId: UuidSchema };
 
 export const IntentSchema = z.discriminatedUnion('type', [
-  z.strictObject({ type: z.literal('join'), ...intentId, name: z.string().min(1) }),
+  // `isCreator` is set by the DO after it verifies the caller's `creatorToken` HMAC — never
+  // by the client. It is the sole source of the facilitator role (spec 01.1).
+  z.strictObject({
+    type: z.literal('join'),
+    ...intentId,
+    name: z.string().min(1),
+    isCreator: z.boolean().optional(),
+  }),
   z.strictObject({ type: z.literal('rejoin'), ...intentId, ...participant }),
   z.strictObject({ type: z.literal('updateConfig'), ...intentId, ...participant, config: GameConfigSchema }),
   z.strictObject({ type: z.literal('startGame'), ...intentId, ...participant }),

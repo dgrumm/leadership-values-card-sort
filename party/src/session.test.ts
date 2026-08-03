@@ -21,12 +21,44 @@ describe('POST /api/session', () => {
     expect(creatorToken.length).toBeGreaterThan(0);
 
     const socket = await connect(code);
-    const { participantId } = await join(socket, 'Facilitator');
+    const { participantId } = await join(socket, 'Facilitator', crypto.randomUUID(), creatorToken);
     expect(participantId).toMatch(/^[0-9a-f-]{36}$/);
 
     const state = await storedState(code);
     expect(state?.code).toBe(code);
     expect(state?.participants[participantId]?.role).toBe('facilitator');
+  });
+});
+
+describe('facilitator role is owned by creatorToken, not join order', () => {
+  it('gives the creator the facilitator role even when a participant joins first', async () => {
+    const { code, creatorToken } = await createSession();
+
+    const racer = await connect(code);
+    const first = await join(racer, 'Fast Participant');
+
+    const creator = await connect(code);
+    const second = await join(creator, 'Real Creator', crypto.randomUUID(), creatorToken);
+
+    const state = await storedState(code);
+    expect(state?.participants[first.participantId]?.role).toBe('participant');
+    expect(state?.participants[second.participantId]?.role).toBe('facilitator');
+  });
+
+  it('ignores a client-supplied isCreator flag and a forged creatorToken', async () => {
+    const { code } = await createSession();
+    const socket = await connect(code);
+
+    socket.send({ type: 'join', intentId: crypto.randomUUID(), name: 'Impostor', isCreator: true });
+    const welcome = (await socket.next()) as { participantId: string };
+    await socket.next();
+
+    const forger = await connect(code);
+    const forged = await join(forger, 'Forger', crypto.randomUUID(), 'not-a-real-hmac');
+
+    const state = await storedState(code);
+    expect(state?.participants[welcome.participantId]?.role).toBe('participant');
+    expect(state?.participants[forged.participantId]?.role).toBe('participant');
   });
 });
 
@@ -74,9 +106,9 @@ describe('rejoin', () => {
 
 describe('config lock', () => {
   it('accepts updateConfig in lobby and rejects it once active', async () => {
-    const { code } = await createSession();
+    const { code, creatorToken } = await createSession();
     const socket = await connect(code);
-    const { participantId, participantToken } = await join(socket, 'Facilitator');
+    const { participantId, participantToken } = await join(socket, 'Facilitator', crypto.randomUUID(), creatorToken);
     const stateAfterJoin = await storedState(code);
     const config = stateAfterJoin!.config;
 
@@ -107,9 +139,9 @@ describe('config lock', () => {
 
 describe('reveal gating', () => {
   it('rejects a reveal for a round above gate.openRound', async () => {
-    const { code } = await createSession();
+    const { code, creatorToken } = await createSession();
     const socket = await connect(code);
-    const { participantId, participantToken } = await join(socket, 'Facilitator');
+    const { participantId, participantToken } = await join(socket, 'Facilitator', crypto.randomUUID(), creatorToken);
 
     socket.send({ type: 'setGate', intentId: crypto.randomUUID(), participantId, token: participantToken, round: 1 });
     await socket.next(); // gate patch

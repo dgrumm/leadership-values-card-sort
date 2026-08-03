@@ -74,11 +74,12 @@ export function applyIntent(state: SessionState, intent: Intent, deps: ApplyInte
         return reject('SESSION_CONCLUDED', 'cannot join a concluded session');
       }
       const participantId = deps.newParticipantId();
-      const isFirstParticipant = Object.keys(state.participants).length === 0;
+      // Facilitator iff the DO verified a `creatorToken` — NOT join order. Whoever creates the
+      // session owns it, even if a participant races them to the first join (spec 01.1).
       const participant: Participant = {
         name: intent.name,
         avatarHue: hueFromId(participantId),
-        role: isFirstParticipant ? 'facilitator' : 'participant',
+        role: intent.isCreator === true ? 'facilitator' : 'participant',
         connected: true,
         progress: { round: 1, sorted: 0, kept: 0, done: false },
       };

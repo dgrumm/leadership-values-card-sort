@@ -1,7 +1,7 @@
 import { Server } from 'partyserver';
 import type { Connection, WSMessage } from 'partyserver';
 import { IntentSchema, applyIntent, type Event, type GameConfig, type SessionState } from '@values-cards/shared';
-import { mintParticipantToken, verifyParticipantToken } from './token';
+import { mintParticipantToken, verifyCreatorToken, verifyParticipantToken } from './token';
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -79,12 +79,23 @@ export class SessionServer extends Server<Env> {
     // the reducer's Intent shape (IntentSchema is a strictObject) — strip them before parsing.
     const record = payload as Record<string, unknown>;
     const token = record.token;
+    const creatorToken = record.creatorToken;
     const rest: Record<string, unknown> = { ...record };
     delete rest.token;
     delete rest.creatorToken;
+    // A client cannot claim the facilitator role: `isCreator` is only ever set here, from a
+    // verified HMAC. Any client-supplied value is discarded.
+    delete rest.isCreator;
     let intentInput: Record<string, unknown> = rest;
 
-    if (rest.type !== 'join') {
+    if (rest.type === 'join') {
+      const isCreator =
+        typeof creatorToken === 'string' &&
+        (await verifyCreatorToken(this.env.SESSION_TOKEN_SECRET, this.session.code, creatorToken));
+      if (isCreator) {
+        intentInput = { ...rest, isCreator: true };
+      }
+    } else {
       if (typeof token !== 'string') {
         this.sendError(connection, 'auth', 'participantToken required');
         return;

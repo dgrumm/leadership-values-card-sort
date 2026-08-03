@@ -65,8 +65,9 @@ export async function join(
   socket: TestSocket,
   name: string,
   intentId = crypto.randomUUID(),
+  creatorToken?: string,
 ): Promise<{ participantId: string; participantToken: string }> {
-  socket.send({ type: 'join', intentId, name });
+  socket.send({ type: 'join', intentId, name, ...(creatorToken ? { creatorToken } : {}) });
   const welcome = await socket.next();
   await socket.next(); // the broadcasted full-state event that follows every join
   return welcome as { participantId: string; participantToken: string };

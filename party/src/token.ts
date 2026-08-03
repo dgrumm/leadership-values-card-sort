@@ -37,6 +37,11 @@ export async function mintParticipantToken(secret: string, code: string, partici
   return `${participantId}.${signature}`;
 }
 
+/** True iff `token` is a valid, unmodified creatorToken for this code. */
+export async function verifyCreatorToken(secret: string, code: string, token: string): Promise<boolean> {
+  return token === (await mintCreatorToken(secret, code));
+}
+
 /** Returns the participantId iff `token` is a valid, unmodified participantToken for this code. */
 export async function verifyParticipantToken(secret: string, code: string, token: string): Promise<string | null> {
   const dot = token.indexOf('.');
