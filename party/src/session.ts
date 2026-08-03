@@ -50,6 +50,12 @@ export class SessionServer extends Server<Env> {
       await this.ctx.storage.setAlarm(Date.now() + SESSION_TTL_MS);
       return new Response(null, { status: 201 });
     }
+    // Test/dev-only storage dump (spec 02.1's privacy E2E): proves invariant 1 against the
+    // DO's *actual persisted storage*, not just the events it happened to broadcast. Read-only,
+    // no auth — same trust boundary as `/internal/init`, only ever reachable from the Worker.
+    if (request.method === 'GET' && url.pathname === '/internal/dump') {
+      return Response.json(this.session);
+    }
     return new Response('not found', { status: 404 });
   }
 

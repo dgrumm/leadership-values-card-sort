@@ -15,6 +15,7 @@ export function Avatar({ name, hue }: AvatarProps) {
     <div
       role="img"
       aria-label={name}
+      data-hue={hue}
       className="flex h-11 w-11 items-center justify-center rounded-full font-display text-lg font-semibold text-on-accent"
       style={{ backgroundColor: `oklch(55% 0.12 ${hue})` }}
     >

@@ -43,3 +43,15 @@ export function saveToken(code: string, token: StoredToken): void {
 export function clearToken(code: string): void {
   localStorage.removeItem(storageKey(code));
 }
+
+const CURRENT_CODE_KEY = 'vc:currentCode';
+
+/** The most recently joined session code, so a hand-off to a fixed route (e.g. `/sort`)
+ *  can resume the real session without carrying the code in the URL (02.1). */
+export function saveCurrentCode(code: string): void {
+  localStorage.setItem(CURRENT_CODE_KEY, code);
+}
+
+export function loadCurrentCode(): string | null {
+  return localStorage.getItem(CURRENT_CODE_KEY);
+}

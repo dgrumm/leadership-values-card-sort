@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '../components/Button';
 import { ConnectionPill } from '../session/ConnectionPill';
 import { intents } from '../session/intents';
-import { loadToken } from '../session/tokens';
+import { loadToken, saveCurrentCode } from '../session/tokens';
 import { useSession } from '../session/useSession';
 import { Lobby } from './lobby';
 
@@ -112,12 +112,25 @@ function JoiningSession({ code, name }: { code: string; name: string }) {
 
   useEffect(() => {
     const token = loadToken(code);
-    if (!token || !state) return;
+    // Gating on `connection === 'live'` (not just `state` presence) matters: 'live' is the
+    // same transition that just flushed the offline intent queue (useSession.ts), and
+    // `ws.send()` only hands a frame to the network stack — it doesn't block until the
+    // frame is actually transmitted. Navigating away too soon after a flush can tear the
+    // page down mid-transmission and silently drop it (spec 02.1's e2e/reconnect.spec.ts
+    // caught this losing a queued `reportProgress`); a short delay gives the browser time
+    // to actually get the flushed frame(s) onto the wire before the document unloads.
+    // TODO: the delay becomes unnecessary once a client-side router replaces the full
+    // document navigation here — there's no teardown to race then.
+    if (!token || !state || connection !== 'live') return;
+    // 03.1: participants wait in the lobby while the game is configured; only an `active`
+    // phase hands off to the sort route.
     if (state.phase === 'active') {
-      // 01.3/01.4 own the real sort route; this is the placeholder hand-off (out of scope here).
-      window.location.assign('/sort');
+      // `/sort` reads this to resume the real joined session (02.1) instead of its
+      // standalone local demo — see routes/Sort.tsx.
+      saveCurrentCode(code);
+      setTimeout(() => window.location.assign('/sort'), 100);
     }
-  }, [state, code]);
+  }, [state, code, connection]);
 
   const token = loadToken(code);
   if (state && token && state.participants[token.participantId]) {

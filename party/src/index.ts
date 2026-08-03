@@ -9,6 +9,8 @@ export { SessionServer };
 
 const SESSION_PATH = '/api/session';
 const WS_PATH_PATTERN = /^\/api\/session\/([A-Z0-9]{6})\/ws$/;
+// Test/dev-only (spec 02.1's privacy E2E) — see session.ts's `/internal/dump`.
+const DUMP_PATH_PATTERN = /^\/api\/session\/([A-Z0-9]{6})\/dump$/;
 const MAX_CODE_ATTEMPTS = 5;
 
 async function createSession(env: Env, config: GameConfig): Promise<{ code: string; creatorToken: string }> {
@@ -50,6 +52,13 @@ export default {
       const code = wsMatch[1] as string;
       const stub = env.Session.get(env.Session.idFromName(code));
       return stub.fetch(request);
+    }
+
+    const dumpMatch = url.pathname.match(DUMP_PATH_PATTERN);
+    if (dumpMatch) {
+      const code = dumpMatch[1] as string;
+      const stub = env.Session.get(env.Session.idFromName(code));
+      return stub.fetch('http://session/internal/dump');
     }
 
     return new Response('Not found', { status: 404 });
