@@ -8,6 +8,14 @@
 const encoder = new TextEncoder();
 
 async function hmacKey(secret: string): Promise<CryptoKey> {
+  // Without this, an unset binding reaches WebCrypto as a zero-length key and surfaces as
+  // "Imported HMAC key length (0)..." — a crypto error that says nothing about the actual
+  // cause. There is deliberately no default: this secret signs every participant token.
+  if (!secret) {
+    throw new Error(
+      'SESSION_TOKEN_SECRET is not set. For local dev: cp party/.dev.vars.example party/.dev.vars (see README).',
+    );
+  }
   return crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
     'sign',
     'verify',

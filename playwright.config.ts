@@ -17,7 +17,10 @@ export default defineConfig({
       command:
         'pnpm --filter @values-cards/party exec wrangler dev --port 8799 --var SESSION_TOKEN_SECRET:test-e2e-secret-do-not-use-in-prod --var DEV_STATE_DUMP:true',
       url: 'http://127.0.0.1:8799/api/health',
-      reuseExistingServer: !process.env['CI'],
+      // Never reuse a manually-started `pnpm dev` here: it won't have the test-only
+      // `DEV_STATE_DUMP` binding, so the privacy suite's storage-dump assertion 404s and
+      // reports as a code failure. Failing with "address in use" is far more legible.
+      reuseExistingServer: false,
       timeout: 60_000,
     },
     {
