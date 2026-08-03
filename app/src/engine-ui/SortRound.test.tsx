@@ -54,11 +54,14 @@ describe('SortRound', () => {
     await waitFor(() => expect(screen.getByRole('status', { hidden: true }).textContent).toBe(`Discarded ${first}`));
   });
 
-  it('shows the "Round complete" placeholder once the queue empties', async () => {
+  it('renders no card once the queue empties — 01.4 (routes/Sort) owns what comes next', async () => {
     const cfg = config(1, 1);
     renderRound(cfg);
     const cardValue = 'Card 0';
     await userEvent.click(screen.getByRole('button', { name: `Keep ${cardValue}` }));
-    await waitFor(() => expect(screen.getByText('Round complete')).toBeDefined(), { timeout: 3000 });
+    await waitFor(() => expect(screen.queryByRole('group', { name: `${cardValue} card` })).toBeNull(), {
+      timeout: 3000,
+    });
+    expect(screen.queryByRole('button', { name: /^Keep /, hidden: true })).toBeNull();
   });
 });

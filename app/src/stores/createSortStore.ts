@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { shuffle, type GameConfig } from '@values-cards/shared';
+import { canFinishRound, nextRound, shuffle, type GameConfig } from '@values-cards/shared';
 
 /**
  * Local per-participant sort state (architecture §4.2). Card IDs are the
@@ -19,8 +19,37 @@ export interface SortState {
   queue: string[];
   kept: string[];
   discarded: string[];
-  lastAction?: SortAction;
+  /** Cards discarded in *previous* rounds — the current round's `discarded` is added in on `continueRound` (01.4). */
+  totalDiscarded: number;
+  /** Kept cards marked to cut in TrimGrid, pending `confirmTrim` (01.4). */
+  cut: string[];
+  /** Final-round order from RankBoard; locked in once `confirmRank` runs (01.4). */
   ranking?: string[];
+  rankConfirmed: boolean;
+  lastAction?: SortAction;
+}
+
+export type SortPhase = 'sort' | 'round-complete' | 'trim' | 'rank' | 'result';
+
+/**
+ * Derives where the flow is from state + config alone — no separate phase
+ * field to fall out of sync on refresh (round.ts's `canFinishRound` is the
+ * single source of truth for round completion; the same 40->8->3 shape or
+ * any other config drives this without per-round special-casing).
+ */
+export function getPhase(
+  state: Pick<SortState, 'round' | 'queue' | 'kept' | 'rankConfirmed'>,
+  config: GameConfig,
+): SortPhase {
+  const roundCfg = config.rounds[state.round - 1];
+  if (!roundCfg) return 'result';
+  const status = canFinishRound(state, roundCfg);
+  if ('incomplete' in status) return 'sort';
+  if ('needTrim' in status) return 'trim';
+  const isLastRound = state.round >= config.rounds.length;
+  if (!isLastRound) return 'round-complete';
+  if (roundCfg.rank && !state.rankConfirmed) return 'rank';
+  return 'result';
 }
 
 export interface SortStore extends SortState {
@@ -28,6 +57,15 @@ export interface SortStore extends SortState {
   discard: (cardId: string) => void;
   undo: () => void;
   demote: (cardId: string) => void;
+  /** Toggle a kept card as cut in TrimGrid. */
+  toggleCut: (cardId: string) => void;
+  /** Moves cut cards into `discarded`. No-op unless cutting enough clears the keep-count (invariant 3). */
+  confirmTrim: () => void;
+  /** Advances to the next round via the shared engine. No-op unless the round can actually finish. */
+  continueRound: () => void;
+  setRanking: (order: string[]) => void;
+  /** Locks in the final order (defaulting to kept order if the board was never touched). */
+  confirmRank: () => void;
 }
 
 function initialQueue(config: GameConfig, participantId: string, round: number): string[] {
@@ -50,6 +88,9 @@ export function createSortStore(sessionCode: string, participantId: string, conf
         queue: initialQueue(config, participantId, 1),
         kept: [],
         discarded: [],
+        totalDiscarded: 0,
+        cut: [],
+        rankConfirmed: false,
 
         keep: (cardId) => {
           const state = get();
@@ -106,6 +147,67 @@ export function createSortStore(sessionCode: string, participantId: string, conf
             kept.splice(action.fromIndex ?? kept.length, 0, action.cardId);
             set({ queue, kept, lastAction: undefined });
           }
+        },
+
+        toggleCut: (cardId) => {
+          const state = get();
+          if (!state.kept.includes(cardId)) return;
+          set({
+            cut: state.cut.includes(cardId)
+              ? state.cut.filter((id) => id !== cardId)
+              : [...state.cut, cardId],
+          });
+        },
+
+        confirmTrim: () => {
+          const state = get();
+          const roundCfg = config.rounds[state.round - 1];
+          if (!roundCfg || roundCfg.keep === 'any') return;
+          // Invariant 3 (client half): never drop cards into `discarded` unless
+          // that actually clears the keep-count.
+          if (state.kept.length - state.cut.length > roundCfg.keep) return;
+          set({
+            kept: state.kept.filter((id) => !state.cut.includes(id)),
+            discarded: [...state.discarded, ...state.cut],
+            cut: [],
+          });
+        },
+
+        continueRound: () => {
+          const state = get();
+          const roundCfg = config.rounds[state.round - 1];
+          if (!roundCfg || state.round >= config.rounds.length) return;
+          const status = canFinishRound(state, roundCfg);
+          if (!('ok' in status)) return;
+          const next = nextRound(
+            {
+              participantId,
+              round: state.round,
+              queue: state.queue,
+              kept: state.kept,
+              discarded: state.discarded,
+              totalDiscarded: state.totalDiscarded,
+            },
+            config,
+          );
+          set({
+            round: next.round,
+            queue: next.queue,
+            kept: next.kept,
+            discarded: next.discarded,
+            totalDiscarded: next.totalDiscarded,
+            cut: [],
+            ranking: undefined,
+            rankConfirmed: false,
+            lastAction: undefined,
+          });
+        },
+
+        setRanking: (order) => set({ ranking: order }),
+
+        confirmRank: () => {
+          const state = get();
+          set({ ranking: state.ranking ?? state.kept, rankConfirmed: true });
         },
       }),
       { name: `vc:${sessionCode}:${participantId}:sort` },

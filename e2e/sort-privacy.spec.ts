@@ -3,30 +3,30 @@ import { expect, test } from '@playwright/test';
 // Every value/description string in the demo deck (app/src/routes/Sort.tsx) —
 // none of these may ever appear in a network frame before reveal (02.2).
 const CARD_STRINGS = [
-  'Courage',
-  'Acting despite fear',
-  'Curiosity',
-  'Seeking to understand',
-  'Integrity',
-  'Consistency of values and action',
-  'Trust',
-  'Confidence in others’ intentions',
-  'Growth',
-  'Committing to improve',
-  'Empathy',
-  'Understanding others’ experience',
-  'Discipline',
-  'Doing what matters most',
-  'Humility',
-  'Openness to being wrong',
-  'Resilience',
-  'Recovering from setbacks',
-  'Fairness',
-  'Treating others equitably',
-  'Creativity',
-  'Generating novel ideas',
-  'Gratitude',
-  'Appreciating what is given',
+  'Caffeine',
+  'The fundamental belief that productivity is directly proportional to coffee consumption',
+  'Snacks',
+  'Commitment to maintaining strategic reserves of treats for optimal team morale',
+  'Muting',
+  'The discipline to silence oneself before dogs, children, or doorbells interrupt meetings',
+  'Restraint',
+  'The wisdom to resist reply-all when someone microwaves fish in the office',
+  'Efficiency',
+  'The courage to end meetings that have veered into discussing weekend plans',
+  'Flexibility',
+  'The art of interpreting deadlines as gentle suggestions rather than fixed points',
+  'Lunch',
+  'The sacred practice of stepping away from one’s desk for actual nourishment',
+  'Emojis',
+  'The ability to convey professionalism while using the perfect amount of 👍 and 😊',
+  'Parking',
+  'The mystical force that guides one to spaces near the entrance, always',
+  'Friday',
+  'The superhuman strength to maintain focus despite the weekend’s gravitational pull',
+  'Spreadsheets',
+  'Finding enlightenment through pivot tables and conditional formatting',
+  'Cake',
+  'The moral duty to ensure equitable distribution of celebration desserts',
 ];
 
 test('sorting a full round emits no card data over the network (invariant 1)', async ({ page }) => {
@@ -45,7 +45,8 @@ test('sorting a full round emits no card data over the network (invariant 1)', a
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
     } else {
-      await expect(page.getByText('Round complete')).toBeVisible({ timeout: 3000 });
+      // Keeping all 12 is over round 1's keep-count of 8 — lands in TrimGrid (01.4).
+      await expect(page.getByRole('heading', { name: 'Trim to 8' })).toBeVisible({ timeout: 3000 });
     }
   }
 

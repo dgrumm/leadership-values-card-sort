@@ -35,19 +35,19 @@ export function nextRound(sortState: SortState, config: { rounds: readonly Round
 
 export type FinishStatus = { ok: true } | { needTrim: number } | { incomplete: true };
 
-/** Whether a round's sort is done, needs trimming down to the keep-count, or isn't finished yet. */
+/**
+ * Whether a round's sort is done, needs trimming down to the keep-count, or
+ * isn't finished yet. `incomplete` means only one thing: there are still
+ * cards in the queue. Once the queue is empty, keeping fewer than the
+ * round's keep-count is a valid outcome (01.4) — over the count needs a
+ * trim, at or under it is always `ok`.
+ */
 export function canFinishRound(sortState: Pick<SortState, 'queue' | 'kept'>, roundCfg: RoundConfig): FinishStatus {
   if (sortState.queue.length > 0) {
     return { incomplete: true };
   }
-  if (roundCfg.keep === 'any') {
-    return { ok: true };
-  }
-  if (sortState.kept.length > roundCfg.keep) {
+  if (roundCfg.keep !== 'any' && sortState.kept.length > roundCfg.keep) {
     return { needTrim: sortState.kept.length - roundCfg.keep };
-  }
-  if (sortState.kept.length < roundCfg.keep) {
-    return { incomplete: true };
   }
   return { ok: true };
 }

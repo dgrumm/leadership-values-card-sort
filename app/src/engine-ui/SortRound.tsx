@@ -12,8 +12,10 @@ export interface SortRoundProps {
 
 /**
  * Config-driven sort screen: renders whichever round `config.rounds` and the
- * store's `round` point to. End of queue shows a placeholder — trim/advance
- * to the next round is 01.4.
+ * store's `round` point to. Owns only the active-sorting phase — once the
+ * queue empties, the caller (routes/Sort, 01.4) reads the store's phase and
+ * swaps this out for the round-complete/trim/rank/result screen instead, so
+ * this renders nothing itself in that instant.
  */
 export function SortRound({ config, useSortStore }: SortRoundProps) {
   const state = useSortStore();
@@ -65,7 +67,12 @@ export function SortRound({ config, useSortStore }: SortRoundProps) {
       <div aria-live="polite" role="status" className="sr-only">
         {announcement}
       </div>
-      <ProgressRail roundName={roundCfg.name} position={Math.min(position, total)} total={total} />
+      <div className="flex flex-col items-center gap-1">
+        <ProgressRail roundName={roundCfg.name} position={Math.min(position, total)} total={total} />
+        {/* ponytail: a plain running total, not an animated discard-stack visual — nothing in the
+            acceptance criteria requires the motion, and the count is what's load-bearing. */}
+        <p className="text-xs text-ink-muted">{state.totalDiscarded + state.discarded.length} set aside</p>
+      </div>
       {currentCard ? (
         <CardStack
           card={currentCard}
@@ -74,9 +81,7 @@ export function SortRound({ config, useSortStore }: SortRoundProps) {
           onKeep={() => useSortStore.getState().keep(currentCard.value)}
           onDiscard={() => useSortStore.getState().discard(currentCard.value)}
         />
-      ) : (
-        <p className="font-display text-2xl font-semibold">Round complete</p>
-      )}
+      ) : null}
       <KeptTray
         cards={keptCards}
         limit={roundCfg.keep}
