@@ -7,6 +7,9 @@
     "csv-to-json": "tsx scripts/csv-to-json.ts",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@values-cards/shared": "workspace:*"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
