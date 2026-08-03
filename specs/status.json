@@ -79,7 +79,7 @@
       "depends_on": [
         "02.1"
       ],
-      "status": "not-started"
+      "status": "done"
     },
     {
       "id": "02.3",
