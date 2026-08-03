@@ -125,7 +125,11 @@ export function applyIntent(state: SessionState, intent: Intent, deps: ApplyInte
     case 'startGame': {
       const participant = requireParticipant(state, intent.participantId);
       if (!participant) return reject('UNKNOWN_PARTICIPANT', 'no participant with that id');
-      if (participant.role !== 'facilitator') return reject('FORBIDDEN', 'only the facilitator can start the game');
+      // A facilitated game only the facilitator can kick off; a non-facilitated (peer) game
+      // is a group activity with no single owner, so any participant may start it (02.1).
+      if (state.config.facilitated && participant.role !== 'facilitator') {
+        return reject('FORBIDDEN', 'only the facilitator can start the game');
+      }
       if (state.phase !== 'lobby') return reject('LOCKED', 'game already started');
       const next = recordProcessed({ ...state, phase: 'active' as const }, intent.participantId, intent.intentId);
       return ok(next, [{ type: 'patch', patch: { phase: next.phase } }]);

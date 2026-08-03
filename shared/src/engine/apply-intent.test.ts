@@ -175,6 +175,13 @@ describe('applyIntent: startGame', () => {
     const result = applyIntent(state, { type: 'startGame', intentId: 'i1', participantId: PARTICIPANT });
     expect('rejection' in result).toBe(true);
   });
+
+  it('allows any participant to start a non-facilitated game (02.1)', () => {
+    const state = baseState({ config: { ...baseState().config, facilitated: false } });
+    const result = applyIntent(state, { type: 'startGame', intentId: 'i1', participantId: PARTICIPANT });
+    if ('rejection' in result) throw new Error('unexpected rejection');
+    expect(result.state.phase).toBe('active');
+  });
 });
 
 describe('applyIntent: reportProgress', () => {

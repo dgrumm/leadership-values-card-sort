@@ -15,7 +15,7 @@ export default defineConfig({
       // The session DO (spec 01.1) — Vite proxies /api to it (app/vite.config.ts).
       // Deterministic test-only secret, matching party/vitest.config.ts's convention.
       command:
-        'pnpm --filter @values-cards/party exec wrangler dev --port 8799 --var SESSION_TOKEN_SECRET:test-e2e-secret-do-not-use-in-prod',
+        'pnpm --filter @values-cards/party exec wrangler dev --port 8799 --var SESSION_TOKEN_SECRET:test-e2e-secret-do-not-use-in-prod --var DEV_STATE_DUMP:true',
       url: 'http://127.0.0.1:8799/api/health',
       reuseExistingServer: !process.env['CI'],
       timeout: 60_000,

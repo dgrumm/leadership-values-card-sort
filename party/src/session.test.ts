@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { env, evictDurableObject, runDurableObjectAlarm, runInDurableObject } from 'cloudflare:test';
+import { SELF, env, evictDurableObject, runDurableObjectAlarm, runInDurableObject } from 'cloudflare:test';
 import type { SessionState } from '@values-cards/shared';
 import { connect, createSession, join } from './test-helpers';
 import type { Env } from './session';
@@ -224,5 +224,22 @@ describe('expiry', () => {
     expect(error).toMatchObject({ type: 'error', code: 'not_found' });
 
     expect(await storedState(code)).toBeUndefined();
+  });
+});
+
+describe('dev state dump route', () => {
+  // The e2e privacy suite needs this route to inspect real persisted storage, but it must
+  // not exist in production: with no auth beyond a 6-char code it would expose every
+  // participant's UUID, display name, role and progress (and reveal snapshots from 02.2).
+  // `party/vitest.config.ts` deliberately does NOT set DEV_STATE_DUMP, so this asserts the
+  // production posture — only the e2e harness opts in, via playwright.config.ts.
+  it('404s when DEV_STATE_DUMP is unset', async () => {
+    const { code } = await createSession();
+    const socket = await connect(code);
+    await join(socket, 'Facilitator');
+
+    const response = await SELF.fetch(`http://test/api/session/${code}/dump`);
+    expect(response.status).toBe(404);
+    expect(await response.text()).not.toContain('Facilitator');
   });
 });
