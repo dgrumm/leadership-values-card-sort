@@ -30,6 +30,11 @@ test('socket-kill: reconnects automatically and a queued intent survives it', as
 
   await page.getByLabel('Display name').fill('Ada');
   await page.getByRole('button', { name: 'Join' }).click();
+
+  // Spec 03.1: joining now lands in the lobby, not directly on /sort — the "quick
+  // create" flow's creator token (same browser) makes Ada the facilitator, so she
+  // starts the game herself to reach the state this test actually cares about.
+  await page.getByRole('button', { name: 'Start game' }).click();
   await expect(page).toHaveURL(/\/sort$/, { timeout: 10_000 });
 
   // Every connection attempt to the session socket fails immediately while this route is

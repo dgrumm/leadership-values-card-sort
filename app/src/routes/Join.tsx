@@ -4,6 +4,7 @@ import { ConnectionPill } from '../session/ConnectionPill';
 import { intents } from '../session/intents';
 import { loadToken } from '../session/tokens';
 import { useSession } from '../session/useSession';
+import { Lobby } from './lobby';
 
 const CODE_PATTERN = /^[A-Z0-9]{6}$/;
 const CREATOR_TOKEN_KEY = (code: string) => `vc:${code}:creatorToken`;
@@ -112,11 +113,21 @@ function JoiningSession({ code, name }: { code: string; name: string }) {
   useEffect(() => {
     const token = loadToken(code);
     if (!token || !state) return;
-    if (state.participants[token.participantId]) {
+    if (state.phase === 'active') {
       // 01.3/01.4 own the real sort route; this is the placeholder hand-off (out of scope here).
       window.location.assign('/sort');
     }
   }, [state, code]);
+
+  const token = loadToken(code);
+  if (state && token && state.participants[token.participantId]) {
+    return (
+      <>
+        <ConnectionPill connection={connection} />
+        <Lobby code={code} state={state} participantId={token.participantId} send={send} />
+      </>
+    );
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 text-ink">

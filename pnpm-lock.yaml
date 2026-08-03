@@ -47,6 +47,9 @@ importers:
       '@fontsource/fraunces':
         specifier: ^5.3.0
         version: 5.3.0
+      '@values-cards/decks':
+        specifier: workspace:*
+        version: link:../decks
       '@values-cards/shared':
         specifier: workspace:*
         version: link:../shared

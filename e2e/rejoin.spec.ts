@@ -13,6 +13,11 @@ test('reload on the same join URL resumes silently with the same participant UUI
 
   await page.getByLabel('Display name').fill('Ada');
   await page.getByRole('button', { name: 'Join' }).click();
+
+  // Spec 03.1: joining now lands in the lobby, not directly on /sort — the "quick
+  // create" flow's creator token (same browser) makes Ada the facilitator, so she
+  // starts the game herself to reach the state this test actually cares about.
+  await page.getByRole('button', { name: 'Start game' }).click();
   await expect(page).toHaveURL(/\/sort$/, { timeout: 10_000 });
 
   const originalParticipantId: string = await page.evaluate((c) => {

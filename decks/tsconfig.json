@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["scripts", "decks.test.ts", "vitest.config.ts"]
+  "include": ["scripts", "decks.test.ts", "vitest.config.ts", "templates.ts"]
 }
