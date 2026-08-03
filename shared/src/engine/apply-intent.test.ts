@@ -64,8 +64,25 @@ describe('applyIntent: join', () => {
     expect('rejection' in result).toBe(false);
     if (!('rejection' in result)) {
       expect(result.state.participants[OUTSIDER]?.name).toBe('Ada');
-      expect(result.state.participants[OUTSIDER]?.role).toBe('facilitator'); // first joiner
+      // Join order confers nothing — the facilitator role comes only from `isCreator`.
+      expect(result.state.participants[OUTSIDER]?.role).toBe('participant');
       expect(result.events).toEqual([{ type: 'state', state: result.state }]);
+    }
+  });
+
+  it('assigns the facilitator role from isCreator, regardless of join order', () => {
+    const state = baseState({ participants: {} });
+    const asCreator = applyIntent(state, { type: 'join', intentId: 'i1', name: 'Ada', isCreator: true }, deps());
+    expect('rejection' in asCreator).toBe(false);
+    if (!('rejection' in asCreator)) {
+      expect(asCreator.state.participants[OUTSIDER]?.role).toBe('facilitator');
+    }
+
+    // A non-empty session still yields a facilitator for the creator who arrives late.
+    const late = applyIntent(baseState(), { type: 'join', intentId: 'i2', name: 'Grace', isCreator: true }, deps());
+    expect('rejection' in late).toBe(false);
+    if (!('rejection' in late)) {
+      expect(late.state.participants[OUTSIDER]?.role).toBe('facilitator');
     }
   });
 
