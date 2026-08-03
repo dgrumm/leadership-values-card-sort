@@ -3,6 +3,12 @@
   "name": "values-cards-party",
   "main": "src/index.ts",
   "compatibility_date": "2026-07-01",
+  // Single source of truth for the dev port: `app/vite.config.ts` proxies /api here and
+  // playwright.config.ts boots wrangler here. Leaving it on wrangler's shared 8787 default
+  // means `pnpm dev` and the e2e suite disagree, and manual dev proxies to a dead port.
+  "dev": {
+    "port": 8799
+  },
   "durable_objects": {
     "bindings": [
       {
