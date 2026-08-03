@@ -6,14 +6,14 @@ import { describe, expect, it } from 'vitest';
 const CSS = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'tokens.css'), 'utf8');
 
 function tokenHex(name: string): string {
-  const match = new RegExp(`--color-${name}:\\s*(#[0-9a-fA-F]{3,8})`).exec(CSS);
+  const match = new RegExp(`--color-${name}:\\s*(#[0-9a-fA-F]{6})\\b`).exec(CSS);
   if (!match?.[1]) throw new Error(`token --color-${name} not found in tokens.css`);
   return match[1];
 }
 
 function hexToRgb(hex: string): [number, number, number] {
-  const normalized = hex.length === 4 ? `#${[...hex.slice(1)].map((c) => c + c).join('')}` : hex;
-  const n = Number.parseInt(normalized.slice(1), 16);
+  // tokens.css uses 6-digit hex exclusively; tokenHex's regex enforces it.
+  const n = Number.parseInt(hex.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
@@ -55,6 +55,19 @@ describe('design token color pairings (WCAG AA)', () => {
 
   it('on-accent on accent-hover passes AA for normal text', () => {
     expect(contrastRatio(tokenHex('on-accent'), tokenHex('accent-hover'))).toBeGreaterThanOrEqual(
+      AA_NORMAL,
+    );
+  });
+
+  // Pairings used by Button's danger variant and Toast's danger/success variants.
+  it('on-accent on danger passes AA for normal text', () => {
+    expect(contrastRatio(tokenHex('on-accent'), tokenHex('danger'))).toBeGreaterThanOrEqual(
+      AA_NORMAL,
+    );
+  });
+
+  it('on-accent on success passes AA for normal text', () => {
+    expect(contrastRatio(tokenHex('on-accent'), tokenHex('success'))).toBeGreaterThanOrEqual(
       AA_NORMAL,
     );
   });
