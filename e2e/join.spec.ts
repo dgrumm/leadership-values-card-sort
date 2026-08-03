@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
  * Full stack against `wrangler dev` (playwright.config.ts runs it as a second
  * webServer, proxied under /api by Vite) — the real Session DO from spec 01.1.
  */
-test('join flow: code + name -> roster contains self', async ({ page }) => {
+test('join flow: code + name -> roster contains self in the lobby', async ({ page }) => {
   await page.goto('/join');
   await page.getByRole('button', { name: /Dev: quick create session/ }).click();
   const codeInput = page.locator('#session-code');
@@ -14,10 +14,11 @@ test('join flow: code + name -> roster contains self', async ({ page }) => {
   await page.getByLabel('Display name').fill('Ada');
   await page.getByRole('button', { name: 'Join' }).click();
 
-  // The join hand-off only redirects once the DO's `state` event has this
-  // participant in `participants` (Join.tsx's JoiningSession effect) — a
-  // successful redirect *is* the roster-contains-self assertion.
-  await expect(page).toHaveURL(/\/sort$/, { timeout: 10_000 });
+  // Spec 03.1: a joined participant lands in the lobby (not the sort route) while the
+  // game is still being configured — the roster showing "Ada" *is* the "contains self"
+  // assertion, directly rather than inferring it from a since-removed redirect.
+  await expect(page.getByText('Ada')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText(code)).toBeVisible();
 
   const token: unknown = await page.evaluate((c) => {
     const raw = localStorage.getItem(`vc:${c}:token`);

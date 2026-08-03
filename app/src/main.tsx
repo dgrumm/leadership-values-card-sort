@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Create } from './routes/Create';
 import { Join } from './routes/Join';
 import { KitchenSink } from './routes/KitchenSink';
 import { Landing } from './routes/Landing';
@@ -22,6 +23,8 @@ function currentRoute() {
   const joinMatch = path.match(JOIN_PATH_PATTERN);
   if (joinMatch) return <Join code={joinMatch[1]} />;
   switch (path) {
+    case '/create':
+      return <Create />;
     case '/kitchen-sink':
       return <KitchenSink />;
     case '/sort':
