@@ -1,0 +1,293 @@
+{
+  "name": "Extended 72",
+  "cards": [
+    {
+      "value": "Trust",
+      "description": "Firm reliance on the integrity, ability, or character of a person or thing"
+    },
+    {
+      "value": "Teamwork",
+      "description": "Cooperative effort by a group or team"
+    },
+    {
+      "value": "Commitment",
+      "description": "Being bound emotionally or intellectually to a course of action"
+    },
+    {
+      "value": "Balance",
+      "description": "Balancing time and effort between work, home, and hobbies"
+    },
+    {
+      "value": "Integrity",
+      "description": "Words and deeds match up, being consistent regardless of context"
+    },
+    {
+      "value": "Empathy",
+      "description": "Understanding and sharing the feelings of others, showing compassion"
+    },
+    {
+      "value": "Growth",
+      "description": "Investing in lifelong learning, personal development, and self-education"
+    },
+    {
+      "value": "Accountability",
+      "description": "Taking responsibility for both actions and outcomes"
+    },
+    {
+      "value": "Innovation",
+      "description": "Thinking outside the box and trying new ways to accomplish goals"
+    },
+    {
+      "value": "Quality",
+      "description": "Maintaining a standard of excellence in all endeavors"
+    },
+    {
+      "value": "Courage",
+      "description": "Willingness to take calculated risks and step outside comfort zones"
+    },
+    {
+      "value": "Honesty",
+      "description": "Being truthful and sincere in all interactions"
+    },
+    {
+      "value": "Efficiency",
+      "description": "Producing results in a timely manner with minimal waste or effort"
+    },
+    {
+      "value": "Recognition",
+      "description": "Giving and receiving acknowledgement for achievements"
+    },
+    {
+      "value": "Leadership",
+      "description": "Guiding and inspiring others toward common goals"
+    },
+    {
+      "value": "Resilience",
+      "description": "Ability to bounce back from setbacks and adapt to challenges"
+    },
+    {
+      "value": "Fairness",
+      "description": "Treating people and being treated equally"
+    },
+    {
+      "value": "Effectiveness",
+      "description": "Executing with precision to achieve results"
+    },
+    {
+      "value": "Knowledge",
+      "description": "Subject matter expertise gained through experience or study"
+    },
+    {
+      "value": "Creativity",
+      "description": "Thinking outside the box and trying new ways to accomplish goals"
+    },
+    {
+      "value": "Legacy",
+      "description": "Making a difference today with tomorrow in mind, building for succession"
+    },
+    {
+      "value": "Fun",
+      "description": "Playfulness, ability to laugh and express humor appropriately"
+    },
+    {
+      "value": "Customer_Focus",
+      "description": "Achieving excellence in customer satisfaction and service"
+    },
+    {
+      "value": "Wisdom",
+      "description": "Having deep understanding, insight, and knowledge to make good judgements"
+    },
+    {
+      "value": "Family",
+      "description": "Prioritizing quality and quantity time with family"
+    },
+    {
+      "value": "Status",
+      "description": "Holding a position of importance, high standing, or prestige"
+    },
+    {
+      "value": "Urgency",
+      "description": "Fast-paced, swift, action-oriented approach"
+    },
+    {
+      "value": "Diversity",
+      "description": "Respecting a variety of cultures and lifestyles"
+    },
+    {
+      "value": "Structure",
+      "description": "Valuing formality, process, and systematic approaches"
+    },
+    {
+      "value": "Wealth",
+      "description": "An abundance of valuable material possessions and financial security"
+    },
+    {
+      "value": "Loyalty",
+      "description": "Faithful to a person, ideal, custom, cause, or duty"
+    },
+    {
+      "value": "Faith",
+      "description": "Belief in a higher power or spiritual principles"
+    },
+    {
+      "value": "Achievement",
+      "description": "Aspiring to the highest levels of excellence"
+    },
+    {
+      "value": "Simplicity",
+      "description": "Lack of complexity or complication, keeping things straightforward"
+    },
+    {
+      "value": "Fitness",
+      "description": "Being physically fit and maintaining optimal well-being"
+    },
+    {
+      "value": "Change",
+      "description": "Looking forward to and valuing change, continuous improvement"
+    },
+    {
+      "value": "Service",
+      "description": "Serving the community and non-profit organizations"
+    },
+    {
+      "value": "Passion",
+      "description": "Intense emotional excitement and boundless enthusiasm"
+    },
+    {
+      "value": "Independence",
+      "description": "Free from the influence, guidance or control of others"
+    },
+    {
+      "value": "Authority",
+      "description": "Possessing power over decisions, people, and assets"
+    },
+    {
+      "value": "Competence",
+      "description": "Possessing the skill, knowledge, and ability to effectively perform"
+    },
+    {
+      "value": "Perfection",
+      "description": "Reaching the highest attainable standard, attention to details"
+    },
+    {
+      "value": "Authenticity",
+      "description": "Being genuine and true to one's values and beliefs"
+    },
+    {
+      "value": "Collaboration",
+      "description": "Working together effectively toward shared objectives"
+    },
+    {
+      "value": "Communication",
+      "description": "Clear and effective exchange of information and ideas"
+    },
+    {
+      "value": "Consistency",
+      "description": "Reliable and steady in behavior, performance, and values"
+    },
+    {
+      "value": "Curiosity",
+      "description": "Eagerness to learn and discover new things"
+    },
+    {
+      "value": "Determination",
+      "description": "Firm resolve and persistence in pursuing goals"
+    },
+    {
+      "value": "Excellence",
+      "description": "Striving for the highest quality in all endeavors"
+    },
+    {
+      "value": "Flexibility",
+      "description": "Adaptability and openness to change when needed"
+    },
+    {
+      "value": "Generosity",
+      "description": "Willingness to give time, resources, and support to others"
+    },
+    {
+      "value": "Humility",
+      "description": "Modest and unpretentious attitude, openness to feedback"
+    },
+    {
+      "value": "Initiative",
+      "description": "Taking proactive action without being asked"
+    },
+    {
+      "value": "Justice",
+      "description": "Fair treatment and respect for rights of all individuals"
+    },
+    {
+      "value": "Kindness",
+      "description": "Showing compassion and consideration toward others"
+    },
+    {
+      "value": "Mentorship",
+      "description": "Guiding and developing others' potential and capabilities"
+    },
+    {
+      "value": "Mindfulness",
+      "description": "Present-moment awareness and thoughtful consideration"
+    },
+    {
+      "value": "Optimism",
+      "description": "Positive outlook and belief in favorable outcomes"
+    },
+    {
+      "value": "Patience",
+      "description": "Calm endurance and tolerance in difficult situations"
+    },
+    {
+      "value": "Perseverance",
+      "description": "Continued effort despite difficulties or obstacles"
+    },
+    {
+      "value": "Problem_Solving",
+      "description": "Analytical thinking and creative resolution of challenges"
+    },
+    {
+      "value": "Purpose",
+      "description": "Clear sense of meaning and direction in one's work and life"
+    },
+    {
+      "value": "Respect",
+      "description": "Showing consideration and appreciation for others"
+    },
+    {
+      "value": "Responsibility",
+      "description": "Ownership of duties, obligations, and consequences"
+    },
+    {
+      "value": "Self_Discipline",
+      "description": "Control over one's actions, emotions, and desires"
+    },
+    {
+      "value": "Stability",
+      "description": "Providing consistency and reliability in uncertain times"
+    },
+    {
+      "value": "Transparency",
+      "description": "Openness and honesty in communication and decision-making"
+    },
+    {
+      "value": "Understanding",
+      "description": "Comprehending others' perspectives and situations"
+    },
+    {
+      "value": "Vision",
+      "description": "Ability to see possibilities and inspire others toward a future state"
+    },
+    {
+      "value": "Vitality",
+      "description": "Energy, enthusiasm, and zest for life and work"
+    },
+    {
+      "value": "Resourcefulness",
+      "description": "Ability to find creative solutions with available means"
+    },
+    {
+      "value": "Adaptability",
+      "description": "Flexibility in adjusting to new conditions and challenges"
+    }
+  ]
+}

@@ -14,7 +14,7 @@
       "depends_on": [
         "00.1"
       ],
-      "status": "not-started"
+      "status": "done"
     },
     {
       "id": "00.3",
