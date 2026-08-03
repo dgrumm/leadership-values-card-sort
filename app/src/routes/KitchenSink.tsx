@@ -80,7 +80,7 @@ export function KitchenSink() {
           <p className="mb-4 text-ink-muted">Modal content lives here.</p>
           <Button onClick={() => setModalOpen(false)}>Close</Button>
         </Modal>
-        <Sheet open={sheetOpen}>
+        <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
           <p className="text-ink-muted">Sheet content lives here.</p>
         </Sheet>
       </section>

@@ -27,14 +27,16 @@ export function KeptTray({ cards, limit, onDemote }: KeptTrayProps) {
       >
         {countLabel}
       </Button>
-      <Sheet open={open}>
-        <div className="flex items-center justify-between gap-4">
+      <Sheet open={open} onClose={() => setOpen(false)}>
+        {/* `shrink-0` keeps Close pinned while the grid below scrolls — with a full tray the
+            grid is taller than the sheet, and Close must never scroll out of reach. */}
+        <div className="flex shrink-0 items-center justify-between gap-4">
           <h2 className="font-display text-lg font-semibold text-ink">Kept</h2>
           <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
             Close
           </Button>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-4 overflow-y-auto sm:grid-cols-3">
           {cards.map((card) => (
             <div key={card.value} className="flex flex-col items-center gap-2">
               <GameCard title={card.value} description={card.description} size="sm" />
