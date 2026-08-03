@@ -4,7 +4,7 @@ import { CLASSIC_TEMPLATE } from '@values-cards/decks/templates.js';
 import { Button } from '../components/Button';
 import { ConnectionPill } from '../session/ConnectionPill';
 import { intents } from '../session/intents';
-import { loadToken } from '../session/tokens';
+import { loadToken, saveCurrentCode } from '../session/tokens';
 import { useSession } from '../session/useSession';
 import { Designer } from './create/designer';
 import { Lobby } from './lobby';
@@ -98,6 +98,14 @@ export function Create() {
         </p>
       ) : null}
 
+      {/* Surface WHY the button is disabled — a silently-dead "Create game" with no
+          explanation read as a broken button (the empty-name case in particular). */}
+      {!result.ok ? (
+        <p className="text-sm text-danger">{result.errors[0]?.message ?? 'Fix the game settings to continue.'}</p>
+      ) : name.trim().length === 0 ? (
+        <p className="text-sm text-ink-muted">Enter your name to create the game.</p>
+      ) : null}
+
       <Button type="button" onClick={createGame} disabled={!canCreate}>
         {creating ? 'Creating…' : 'Create game'}
       </Button>
@@ -121,13 +129,17 @@ function CreateLobby({ code, creatorToken, name }: { code: string; creatorToken:
 
   useEffect(() => {
     const token = loadToken(code);
-    if (!token || !state) return;
+    // Mirror Join.tsx's hand-off exactly: `/sort` decides real-session vs. local demo by
+    // `loadCurrentCode()`, so the creator MUST record the code here too — without it the
+    // facilitator dropped into the standalone demo sort, disconnected from its own session.
+    // Gate on `connection === 'live'` and defer so the just-sent `startGame` flushes before
+    // the full-document navigation tears the socket down.
+    if (!token || !state || connection !== 'live') return;
     if (state.phase === 'active') {
-      // 01.3/01.4 own the real sort route; this is the placeholder hand-off (out of
-      // scope here), same as Join.tsx's.
-      window.location.assign('/sort');
+      saveCurrentCode(code);
+      setTimeout(() => window.location.assign('/sort'), 100);
     }
-  }, [state, code]);
+  }, [state, code, connection]);
 
   const token = loadToken(code);
   if (!state || !token || !state.participants[token.participantId]) {
