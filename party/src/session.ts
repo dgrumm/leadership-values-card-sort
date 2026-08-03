@@ -137,11 +137,21 @@ export class SessionServer extends Server<Env> {
       }
     } else if (intent.type === 'rejoin') {
       connection.setState({ participantId: intent.participantId });
+      // Tenet 6 (reconnect = resync) is a per-socket concern, not a per-state-change one:
+      // this socket needs the full snapshot regardless of whether the session mutated. A
+      // replayed rejoin intentId — exactly what an idempotent reconnect retry looks like
+      // after a dropped socket — is a correct no-op in the reducer and emits no events, so
+      // relying on the broadcast below would leave the reconnecting client hanging forever.
+      connection.send(JSON.stringify({ type: 'state', state: this.session } satisfies Event));
     }
 
     if (changed) {
+      // The rejoining socket already got its snapshot directly above; excluding it here
+      // avoids sending the same full state twice. Invariant 5 is unaffected — a replayed
+      // intent still mutates nothing and still broadcasts nothing to anyone else.
+      const without = intent.type === 'rejoin' ? [connection.id] : [];
       for (const event of result.events) {
-        this.broadcast(JSON.stringify(event));
+        this.broadcast(JSON.stringify(event), without);
       }
     }
   }

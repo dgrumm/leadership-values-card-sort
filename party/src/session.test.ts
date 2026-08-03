@@ -102,6 +102,44 @@ describe('rejoin', () => {
     expect(state.participants[participantId]?.connected).toBe(true);
     expect(Object.keys(state.participants)).toHaveLength(1);
   });
+
+  // Tenet 6 vs Invariant 5: an idempotent reconnect retry reuses its intentId, which the
+  // reducer correctly treats as a no-op emitting no events. The socket must still resync.
+  it('answers a replayed rejoin intentId with a full snapshot instead of hanging', async () => {
+    const { code } = await createSession();
+    const socket1 = await connect(code);
+    const { participantId, participantToken } = await join(socket1, 'Facilitator');
+
+    const intentId = crypto.randomUUID();
+    const rejoin = { type: 'rejoin', intentId, participantId, token: participantToken };
+
+    const socket2 = await connect(code);
+    socket2.send(rejoin);
+    expect((await socket2.next()).type).toBe('state');
+
+    // Same intentId again — the reducer no-ops, but this socket still gets its snapshot.
+    socket2.send(rejoin);
+    const replayed = await socket2.next();
+    expect(replayed.type).toBe('state');
+    expect((replayed as { state: SessionState }).state.participants[participantId]?.connected).toBe(true);
+  });
+
+  it('does not send the rejoining socket a duplicate snapshot', async () => {
+    const { code } = await createSession();
+    const socket1 = await connect(code);
+    const { participantId, participantToken } = await join(socket1, 'Facilitator');
+
+    const socket2 = await connect(code);
+    socket2.send({ type: 'rejoin', intentId: crypto.randomUUID(), participantId, token: participantToken });
+    expect((await socket2.next()).type).toBe('state');
+
+    const race = await Promise.race([
+      socket2.next().then(() => 'message'),
+      new Promise((resolve) => setTimeout(() => resolve('timeout'), 100)),
+    ]);
+    expect(race).toBe('timeout');
+    expect(socket2.received).toBe(1);
+  });
 });
 
 describe('config lock', () => {

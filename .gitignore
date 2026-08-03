@@ -22,3 +22,7 @@ playwright-report/
 *.tsbuildinfo
 .DS_Store
 .claude/settings.local.json
+.claude/worktrees/
+.claude/context/
+.agents/
+skills-lock.json
