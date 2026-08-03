@@ -122,9 +122,10 @@ function JoiningSession({ code, name }: { code: string; name: string }) {
     // TODO: the delay becomes unnecessary once a client-side router replaces the full
     // document navigation here — there's no teardown to race then.
     if (!token || !state || connection !== 'live') return;
-    // 03.1: participants wait in the lobby while the game is configured; only an `active`
-    // phase hands off to the sort route.
-    if (state.phase === 'active') {
+    // 02.1 owns the pre-start participant experience and places the lobby in `routes/Sort`'s
+    // pre-start state, so a joined participant hands off to /sort immediately and waits
+    // there. 03.1's `routes/lobby` remains the *creator's* lobby on /create.
+    if (state.participants[token.participantId]) {
       // `/sort` reads this to resume the real joined session (02.1) instead of its
       // standalone local demo — see routes/Sort.tsx.
       saveCurrentCode(code);

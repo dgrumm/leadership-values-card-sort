@@ -8,6 +8,10 @@ const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 export interface Env {
   Session: DurableObjectNamespace<SessionServer>;
   SESSION_TOKEN_SECRET: string;
+  /** `'true'` only under `wrangler dev` / the e2e harness — exposes the read-only state
+   *  dump route used to prove invariant 1 against real persisted storage. Never set in
+   *  production; see the guard in `index.ts`. */
+  DEV_STATE_DUMP?: string;
 }
 
 interface ConnState {

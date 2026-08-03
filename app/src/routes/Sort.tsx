@@ -123,6 +123,17 @@ function Lobby({ state, participantId, send }: { state: SessionState; participan
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-surface p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{state.config.title}</h1>
       <p className="text-ink-muted">Waiting to start · code {state.code}</p>
+      {/* 03.1 requires a joined participant to see the game's config in its lobby, and to
+          see facilitator `updateConfig` edits arrive live. This is that lobby — 02.1 owns
+          the pre-start participant experience, so there is one lobby, not two. */}
+      <ol aria-label="Rounds" className="flex flex-col gap-1 text-center text-sm text-ink-muted">
+        {state.config.rounds.map((round, index) => (
+          <li key={`${index}-${round.name}`}>
+            {round.name} · {round.keep === 'any' ? 'keep any' : `keep ${round.keep}`}
+            {round.rank ? ' · ranked' : ''}
+          </li>
+        ))}
+      </ol>
       <Roster participants={state.participants} selfId={participantId} />
       <Button onClick={() => send(intents.startGame(participantId))} disabled={!canStart} title={canStart ? undefined : 'Only the facilitator can start this game'}>
         Start game

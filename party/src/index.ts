@@ -54,7 +54,11 @@ export default {
       return stub.fetch(request);
     }
 
-    const dumpMatch = url.pathname.match(DUMP_PATH_PATTERN);
+    // Gated on an explicit opt-in binding that only `wrangler dev` and the e2e harness set.
+    // Unset in production, so this route does not exist there: an unauthenticated dump of a
+    // session reachable with nothing but a 6-char code would expose every participant's UUID,
+    // display name, role and progress — and reveal snapshots once 02.2 lands.
+    const dumpMatch = env.DEV_STATE_DUMP === 'true' ? url.pathname.match(DUMP_PATH_PATTERN) : null;
     if (dumpMatch) {
       const code = dumpMatch[1] as string;
       const stub = env.Session.get(env.Session.idFromName(code));
