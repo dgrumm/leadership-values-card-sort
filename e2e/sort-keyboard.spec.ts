@@ -6,6 +6,9 @@ test('completes a 12-card round using only the keyboard', async ({ page }) => {
   for (let i = 0; i < 12; i++) {
     const remainingBefore = 12 - i;
     await expect(page.getByText(`${remainingBefore} left`)).toBeVisible();
+    // 00.4 removed the mount autofocus (no ring on initial load), so each new card
+    // (a remount — CardStack keys SwipeCard by card value) must be Tab'd to first.
+    await page.keyboard.press('Tab');
     await page.keyboard.press(i % 2 === 0 ? 'ArrowRight' : 'ArrowLeft');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });

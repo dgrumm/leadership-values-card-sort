@@ -25,6 +25,20 @@ test('GameCard flip collapses to opacity only when prefers-reduced-motion is set
   expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform);
 });
 
+test('iridescent field drifts when motion is allowed', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/kitchen-sink');
+  const animationName = await page.evaluate(() => getComputedStyle(document.body).animationName);
+  expect(animationName).not.toBe('none');
+});
+
+test('iridescent field is static when prefers-reduced-motion is set', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/kitchen-sink');
+  const animationName = await page.evaluate(() => getComputedStyle(document.body).animationName);
+  expect(animationName).toBe('none');
+});
+
 test('kitchen-sink loads no third-party requests (self-hosted Fraunces)', async ({ page }) => {
   const requestOrigins = new Set<string>();
   page.on('request', (request) => {

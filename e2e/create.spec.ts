@@ -109,6 +109,8 @@ test('facilitator created via the Create page joins the real session on /sort, n
   // And progress flows facilitator -> joiner: Coach sorts one card, Ada's roster reflects it.
   await bPage.getByRole('button', { name: /Show participants/ }).click();
   await page.locator('body').click();
+  // 00.4 removed the mount autofocus, so the card must be Tab'd to before Arrow keys reach it.
+  await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowRight');
   await expect(bPage.getByRole('listitem').filter({ hasText: 'Coach' })).toContainText('1 sorted', {
     timeout: 10_000,

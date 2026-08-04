@@ -25,4 +25,21 @@ for (const viewport of VIEWPORTS) {
       fullPage: true,
     });
   });
+
+  test(`every GameCard is the same width at ${viewport.name} (${viewport.width}px)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto('/kitchen-sink');
+    const cards = page.locator('[data-flipped]');
+    const count = await cards.count();
+    expect(count).toBeGreaterThan(1);
+    const widths = await Promise.all(
+      Array.from({ length: count }, (_, i) => cards.nth(i).boundingBox()),
+    );
+    const firstWidth = widths[0]?.width;
+    for (const box of widths) {
+      expect(box?.width).toBeCloseTo(firstWidth ?? 0, 0);
+    }
+  });
 }

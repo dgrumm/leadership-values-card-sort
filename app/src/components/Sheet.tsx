@@ -33,7 +33,7 @@ export function Sheet({ open, onClose, children }: SheetProps) {
   return createPortal(
     <div
       role="region"
-      className="fixed inset-x-0 bottom-0 z-sheet flex max-h-[85dvh] flex-col rounded-t-sheet bg-surface-raised p-6 shadow-sheet"
+      className="fixed inset-x-0 bottom-0 z-sheet flex max-h-[85dvh] flex-col rounded-t-sheet border border-glass-edge bg-glass-strong p-6 shadow-glass backdrop-blur-[var(--glass-blur)]"
     >
       {children}
     </div>,

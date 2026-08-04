@@ -112,16 +112,24 @@ test('presence: roster membership, live progress, done, matching avatar hue, no 
   expect(adaHueDuringSort).toBe(adaHueOnB);
 
   // A sorts the whole (tiny) round: keep 2, discard 2 — no trim/rank, straight to result.
-  // Each press's swipe-exit animation must resolve (SwipeCard.commit) before the next card
-  // mounts and re-focuses itself, so waiting on the "N left" counter between presses avoids
-  // a keypress landing while no card is focused (same pattern as solo-journey.spec.ts).
+  // 00.4 removed the mount autofocus, so each new card (a remount) needs to be focused before
+  // Arrow keys reach it — the previous pattern of relying on autofocus no longer applies. This
+  // session view has roster controls ahead of the card in tab order, so focus the card group
+  // directly rather than blind-Tabbing. Each press's swipe-exit animation must resolve
+  // (SwipeCard.commit) before the next card mounts, so waiting on the "N left" counter between
+  // presses avoids a keypress landing while no card is focused.
+  const cardGroupA = pageA.getByRole('group', { name: /card$/ });
+  await cardGroupA.focus();
   await pageA.keyboard.press('ArrowRight'); // keep
   await expect(pageA.getByText('3 left')).toBeVisible({ timeout: 5000 });
   await expect(adaRowOnB).toContainText('1 sorted', { timeout: 10_000 });
+  await cardGroupA.focus();
   await pageA.keyboard.press('ArrowLeft'); // discard
   await expect(pageA.getByText('2 left')).toBeVisible({ timeout: 5000 });
+  await cardGroupA.focus();
   await pageA.keyboard.press('ArrowRight'); // keep
   await expect(pageA.getByText('1 left')).toBeVisible({ timeout: 5000 });
+  await cardGroupA.focus();
   await pageA.keyboard.press('ArrowLeft'); // discard
 
   await expect(pageA.getByRole('heading', { name: 'Presence E2E' })).toBeVisible({ timeout: 10_000 });

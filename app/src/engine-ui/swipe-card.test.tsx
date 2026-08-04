@@ -69,8 +69,8 @@ describe('SwipeCard keyboard path', () => {
     await waitFor(() => expect(onDiscard).toHaveBeenCalled(), { timeout: 3000 });
   });
 
-  it('autofocuses the card group on mount so keyboard paths work without tabbing', () => {
+  it('does not autofocus the card group on mount (no ring on initial load)', () => {
     renderCard(vi.fn(), vi.fn());
-    expect(document.activeElement).toBe(screen.getByRole('group', { name: 'Courage card' }));
+    expect(document.activeElement).not.toBe(screen.getByRole('group', { name: 'Courage card' }));
   });
 });

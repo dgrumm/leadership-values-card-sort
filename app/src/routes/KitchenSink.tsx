@@ -9,7 +9,9 @@ import { Toast } from '../components/Toast';
 const VARIANTS: ButtonVariant[] = ['primary', 'secondary', 'ghost', 'danger'];
 
 /**
- * Dev-only showcase of every 00.3 primitive, driven only by tokens.
+ * Dev-only showcase of every glass primitive (00.4), driven only by tokens,
+ * rendered directly on the app-wide iridescent field (no opaque page
+ * background) so the frosted surfaces are visible against it.
  * Excluded from app navigation; used by E2E and visual review.
  */
 export function KitchenSink() {
@@ -17,7 +19,7 @@ export function KitchenSink() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
-    <main className="flex min-h-screen flex-col gap-10 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col gap-10 p-8 text-ink">
       <h1 className="font-display text-3xl font-bold">Kitchen sink</h1>
 
       <section aria-labelledby="buttons-heading" className="flex flex-col gap-4">
@@ -38,10 +40,10 @@ export function KitchenSink() {
           Game cards
         </h2>
         <div className="flex flex-wrap items-end gap-4">
-          <GameCard size="sm" title="Courage" description="Acting despite fear" />
-          <GameCard size="md" title="Curiosity" description="Seeking to understand" />
-          <GameCard size="lg" title="Integrity" description="Consistency of values and action" />
-          <GameCard size="md" title="Trust" flipped />
+          <GameCard title="Courage" description="Acting despite fear" />
+          <GameCard title="Curiosity" description="Seeking to understand" />
+          <GameCard title="Integrity" description="Consistency of values and action" />
+          <GameCard title="Trust" flipped />
         </div>
       </section>
 
