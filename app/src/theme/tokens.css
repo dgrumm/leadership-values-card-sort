@@ -117,3 +117,27 @@
     }
   }
 }
+
+/*
+ * The one glass surface, composed everywhere a panel is needed (00.5). Screens apply
+ * `.glass-panel` / `.glass-panel-strong` rather than re-assembling fill + blur + edge +
+ * shadow from raw utilities — that fragmentation is exactly what left most of 00.4's
+ * screens on opaque `bg-surface-raised`. Text-bearing panels use `-strong` so
+ * `--color-ink`/`--color-ink-muted` keep AA (tokens.test.ts).
+ */
+@layer components {
+  .glass-panel,
+  .glass-panel-strong {
+    border: 1px solid var(--color-glass-edge);
+    box-shadow: var(--shadow-glass);
+    backdrop-filter: blur(var(--glass-blur));
+  }
+
+  .glass-panel {
+    background-color: var(--color-glass);
+  }
+
+  .glass-panel-strong {
+    background-color: var(--color-glass-strong);
+  }
+}

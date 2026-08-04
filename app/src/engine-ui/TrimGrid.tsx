@@ -73,7 +73,7 @@ export function TrimGrid({ cards, cut, limit, onToggleCut, onConfirm }: TrimGrid
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <div aria-live="polite" role="status" className="sr-only">
         {announcement}
       </div>
@@ -85,7 +85,7 @@ export function TrimGrid({ cards, cut, limit, onToggleCut, onConfirm }: TrimGrid
       </div>
       <div
         role="list"
-        className="grid grid-cols-2 gap-4 rounded-card border border-glass-edge bg-glass p-4 shadow-glass backdrop-blur-[var(--glass-blur)] sm:grid-cols-3"
+        className="grid grid-cols-2 gap-4 rounded-card glass-panel p-4 sm:grid-cols-3"
       >
         {cards.map((card, index) => {
           const isCut = cut.includes(card.value);

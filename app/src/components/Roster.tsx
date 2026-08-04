@@ -57,7 +57,7 @@ export function Roster({ participants, selfId, collapsible = false }: RosterProp
 
   if (!collapsible || expanded) {
     return (
-      <div>
+      <div className="glass-panel-strong rounded-control p-3">
         {collapsible ? (
           <button type="button" onClick={() => setExpanded(false)} className="mb-2 text-sm font-semibold text-ink-muted">
             Hide participants

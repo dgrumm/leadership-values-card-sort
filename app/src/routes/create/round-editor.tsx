@@ -63,7 +63,7 @@ export function RoundEditor({ rounds, deckSize, errors, onChange, disabled = fal
           const keepAny = round.keep === 'any';
 
           return (
-            <div key={index} className="flex flex-col gap-2 rounded-control border border-ink-muted p-4">
+            <div key={index} className="flex flex-col gap-2 rounded-control border border-ink-muted glass-panel-strong p-4">
               <div className="flex items-end gap-3">
                 <label className="flex flex-1 flex-col gap-1 text-sm font-semibold" htmlFor={`round-${index}-name`}>
                   Round {index + 1} name
@@ -71,7 +71,7 @@ export function RoundEditor({ rounds, deckSize, errors, onChange, disabled = fal
                     id={`round-${index}-name`}
                     value={round.name}
                     onChange={(event) => updateRound(index, { name: event.target.value })}
-                    className="rounded-control border border-ink-muted bg-surface-raised px-3 py-2 text-ink"
+                    className="rounded-control border border-ink-muted glass-panel-strong px-3 py-2 text-ink"
                   />
                 </label>
                 <Button
@@ -111,7 +111,7 @@ export function RoundEditor({ rounds, deckSize, errors, onChange, disabled = fal
                     onChange={(event) => updateRound(index, { keep: Number(event.target.value) || 0 })}
                     aria-describedby={keepErrors.length > 0 ? `round-${index}-keep-error` : undefined}
                     aria-invalid={keepErrors.length > 0}
-                    className="w-32 rounded-control border border-ink-muted bg-surface-raised px-3 py-2 text-ink"
+                    className="w-32 rounded-control border border-ink-muted glass-panel-strong px-3 py-2 text-ink"
                   />
                 </label>
               ) : null}

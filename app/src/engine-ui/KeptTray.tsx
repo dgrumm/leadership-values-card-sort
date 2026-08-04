@@ -36,7 +36,7 @@ export function KeptTray({ cards, limit, onDemote }: KeptTrayProps) {
             Close
           </Button>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4 overflow-y-auto rounded-card border border-glass-edge bg-glass p-4 shadow-glass backdrop-blur-[var(--glass-blur)] sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-4 overflow-y-auto rounded-card glass-panel p-4 sm:grid-cols-3">
           {cards.map((card) => (
             <div key={card.value} className="flex flex-col items-center gap-2">
               <GameCard title={card.value} description={card.description} />

@@ -28,7 +28,7 @@ export function DeckPicker({ decks = BUNDLED_DECKS, selected, onSelect, disabled
             <label
               key={deck.name}
               htmlFor={id}
-              className={`flex flex-1 cursor-pointer flex-col gap-1 rounded-control border p-4 ${isSelected ? 'border-accent bg-accent-subtle' : 'border-ink-muted bg-surface-raised'}`}
+              className={`flex flex-1 cursor-pointer flex-col gap-1 rounded-control border p-4 ${isSelected ? 'border-accent bg-accent-subtle' : 'border-ink-muted glass-panel-strong'}`}
             >
               <span className="flex items-center gap-2 font-semibold text-ink">
                 <input id={id} type="radio" name="deck" checked={isSelected} onChange={() => onSelect(deck)} />
