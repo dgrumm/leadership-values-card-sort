@@ -81,7 +81,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        className="max-w-md rounded-sheet border border-glass-edge bg-glass-strong p-6 shadow-glass outline-none backdrop-blur-[var(--glass-blur)]"
+        className="max-w-md rounded-sheet glass-panel-strong p-6 outline-none"
       >
         <h2 id="modal-title" className="mb-4 font-display text-xl font-semibold text-ink">
           {title}

@@ -39,7 +39,7 @@ export function GameCard({ title, description, flipped = false }: GameCardProps)
   return (
     <motion.div
       data-flipped={flipped}
-      className={`${CARD_SIZE} rounded-card border border-glass-edge bg-glass shadow-glass backdrop-blur-[var(--glass-blur)]`}
+      className={`${CARD_SIZE} rounded-card glass-panel`}
       variants={variants}
       initial={flipped ? 'back' : 'front'}
       animate={flipped ? 'back' : 'front'}

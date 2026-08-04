@@ -49,51 +49,53 @@ export function Lobby({ code, state, participantId, send }: LobbyProps) {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 p-8 text-ink">
-      <h1 className="font-display text-2xl font-semibold">{state.config.title}</h1>
+      <div className="glass-panel-strong flex w-full max-w-md flex-col items-center gap-8 rounded-sheet p-8">
+        <h1 className="font-display text-2xl font-semibold">{state.config.title}</h1>
 
-      <section className="flex flex-col items-center gap-3">
-        <p className="font-display text-5xl font-bold tracking-widest">{code}</p>
-        <div className="flex items-center gap-2">
-          <input readOnly value={shareLink} aria-label="Share link" className="rounded-control border border-ink-muted bg-surface-raised px-3 py-2 text-sm text-ink" />
-          <Button type="button" variant="secondary" size="sm" onClick={copyLink}>
-            Copy link
-          </Button>
-        </div>
-        {copied ? <Toast message="Link copied" variant="success" /> : null}
-      </section>
+        <section className="flex flex-col items-center gap-3">
+          <p className="font-display text-5xl font-bold tracking-widest">{code}</p>
+          <div className="flex items-center gap-2">
+            <input readOnly value={shareLink} aria-label="Share link" className="rounded-control border border-ink-muted glass-panel-strong px-3 py-2 text-sm text-ink" />
+            <Button type="button" variant="secondary" size="sm" onClick={copyLink}>
+              Copy link
+            </Button>
+          </div>
+          {copied ? <Toast message="Link copied" variant="success" /> : null}
+        </section>
 
-      <section className="w-full max-w-md text-center">
-        <h2 className="mb-2 font-display text-lg font-semibold">Game</h2>
-        <p className="text-sm text-ink-muted">
-          {state.config.deck.name} ({state.config.deck.cards.length} cards) ·{' '}
-          {state.config.rounds.map((round) => round.name).join(' → ')}
-        </p>
-      </section>
+        <section className="w-full text-center">
+          <h2 className="mb-2 font-display text-lg font-semibold">Game</h2>
+          <p className="text-sm text-ink-muted">
+            {state.config.deck.name} ({state.config.deck.cards.length} cards) ·{' '}
+            {state.config.rounds.map((round) => round.name).join(' → ')}
+          </p>
+        </section>
 
-      <section className="w-full max-w-md">
-        <h2 className="mb-2 font-display text-lg font-semibold">Players</h2>
-        <ul className="flex flex-col gap-2">
-          {Object.entries(state.participants).map(([id, participant]) => (
-            <li key={id} className="flex items-center justify-between rounded-control border border-ink-muted bg-surface-raised px-3 py-2">
-              <span>{participant.name}</span>
-              <span className="text-sm text-ink-muted">{participant.role === 'facilitator' ? 'Facilitator' : 'Participant'}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <section className="w-full">
+          <h2 className="mb-2 font-display text-lg font-semibold">Players</h2>
+          <ul className="flex flex-col gap-2">
+            {Object.entries(state.participants).map(([id, participant]) => (
+              <li key={id} className="flex items-center justify-between rounded-control border border-ink-muted glass-panel-strong px-3 py-2">
+                <span>{participant.name}</span>
+                <span className="text-sm text-ink-muted">{participant.role === 'facilitator' ? 'Facilitator' : 'Participant'}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      {state.phase !== 'lobby' ? <p className="text-ink-muted">Config is locked — the game has started.</p> : null}
+        {state.phase !== 'lobby' ? <p className="text-ink-muted">Config is locked — the game has started.</p> : null}
 
-      {isFacilitator && state.phase === 'lobby' ? (
-        <div className="flex gap-4">
-          <Button type="button" variant="secondary" onClick={openEditor}>
-            Edit game
-          </Button>
-          <Button type="button" onClick={() => send(intents.startGame(participantId))}>
-            Start game
-          </Button>
-        </div>
-      ) : null}
+        {isFacilitator && state.phase === 'lobby' ? (
+          <div className="flex gap-4">
+            <Button type="button" variant="secondary" onClick={openEditor}>
+              Edit game
+            </Button>
+            <Button type="button" onClick={() => send(intents.startGame(participantId))}>
+              Start game
+            </Button>
+          </div>
+        ) : null}
+      </div>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Edit game">
         <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto">

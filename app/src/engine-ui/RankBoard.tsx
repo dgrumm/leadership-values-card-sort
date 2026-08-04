@@ -109,7 +109,7 @@ export function RankBoard({ cards, onReorder, onConfirm }: RankBoardProps) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">Rank your final cards</h1>
       <p className="text-sm text-ink-muted">Drag to reorder, most important first.</p>
       <DndContext
