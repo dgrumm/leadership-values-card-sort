@@ -35,6 +35,16 @@
       "status": "done"
     },
     {
+      "id": "00.5",
+      "title": "Glass design system applied app-wide",
+      "phase": "00-foundation",
+      "depends_on": [
+        "00.3",
+        "00.4"
+      ],
+      "status": "not-started"
+    },
+    {
       "id": "01.1",
       "title": "Session Durable Object",
       "phase": "01-core",
