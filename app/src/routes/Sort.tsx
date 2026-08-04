@@ -96,7 +96,7 @@ function SessionSort({ code }: { code: string }) {
 
   if (!token || !state) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-surface text-ink">
+      <main className="flex min-h-screen items-center justify-center text-ink">
         <ConnectionPill connection={connection} />
         <p>Loading…</p>
       </main>
@@ -106,7 +106,7 @@ function SessionSort({ code }: { code: string }) {
   const me = state.participants[token.participantId];
   if (!me) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-surface text-ink">
+      <main className="flex min-h-screen items-center justify-center text-ink">
         <ConnectionPill connection={connection} />
         <p>Loading…</p>
       </main>
@@ -135,7 +135,7 @@ function Lobby({ state, participantId, send }: { state: SessionState; participan
   const canStart = !state.config.facilitated || me?.role === 'facilitator';
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{state.config.title}</h1>
       <p className="text-ink-muted">Waiting to start · code {state.code}</p>
       {/* 03.1 requires a joined participant to see the game's config in its lobby, and to
@@ -258,7 +258,7 @@ function SortBody({
     const roundCfg = config.rounds[state.round - 1];
     const setAside = state.totalDiscarded + state.discarded.length;
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 text-center text-ink">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center text-ink">
         <h1 className="font-display text-2xl font-semibold">{roundCfg?.name} complete</h1>
         <p className="text-ink-muted">
           {state.kept.length} kept · {setAside} set aside
@@ -298,7 +298,7 @@ function SortBody({
   const finalCards = cardsInOrder(state.ranking ?? state.kept, byId);
   const isRanked = finalRoundCfg?.rank === true;
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{config.title}</h1>
       <p className="text-ink-muted">Your final cards</p>
       <ol className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -342,7 +342,7 @@ function DemoSort() {
     const roundCfg = DEMO_CONFIG.rounds[state.round - 1];
     const setAside = state.totalDiscarded + state.discarded.length;
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 text-center text-ink">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center text-ink">
         <h1 className="font-display text-2xl font-semibold">{roundCfg?.name} complete</h1>
         <p className="text-ink-muted">
           {state.kept.length} kept · {setAside} set aside
@@ -381,7 +381,7 @@ function DemoSort() {
   const finalCards = cardsInOrder(state.ranking ?? state.kept, byId);
   const isRanked = DEMO_CONFIG.rounds[DEMO_CONFIG.rounds.length - 1]?.rank === true;
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{DEMO_CONFIG.title}</h1>
       <p className="text-ink-muted">Your final cards</p>
       <ol className="grid grid-cols-2 gap-4 sm:grid-cols-3">

@@ -56,7 +56,7 @@ export function Join({ code: initialCode }: JoinProps) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-ink">
       <h1 className="font-display text-3xl font-semibold">Join a game</h1>
       <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm font-semibold" htmlFor="session-code">
@@ -144,7 +144,7 @@ function JoiningSession({ code, name }: { code: string; name: string }) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-ink">
       <ConnectionPill connection={connection} />
       <h1 className="font-display text-2xl font-semibold">Joining {code}…</h1>
       {alreadyJoined ? <p className="text-ink-muted">Resuming your session.</p> : null}
