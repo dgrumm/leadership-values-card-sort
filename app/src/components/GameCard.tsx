@@ -1,23 +1,17 @@
 import { motion } from 'framer-motion';
 import { fadeOnlyVariants, transition, useMotionSafe } from '../theme/motion';
 
-export type GameCardSize = 'sm' | 'md' | 'lg';
-
 export interface GameCardProps {
   /** Value name shown on the front face, set in the display serif. */
   title: string;
   /** Short description shown beneath the title on the front face. */
   description?: string;
-  size?: GameCardSize;
   /** Shows the card-back face instead of the front. */
   flipped?: boolean;
 }
 
-const SIZE_CLASSES: Record<GameCardSize, string> = {
-  sm: 'w-32',
-  md: 'w-48',
-  lg: 'w-64',
-};
+// Single canonical size everywhere (fits 390px mobile, caps at 256px on desktop).
+const CARD_SIZE = 'w-[min(78vw,16rem)] aspect-[5/7]';
 
 // Mirrors --spring-stiffness/--spring-damping in tokens.css (Framer Motion
 // transitions take numbers, not CSS var strings).
@@ -38,14 +32,14 @@ const FLIP_VARIANTS = {
  * 3D flip (`backface-visibility: hidden` on stacked front/back layers) if
  * 01.3 needs the illusion to hold up under close inspection.
  */
-export function GameCard({ title, description, size = 'md', flipped = false }: GameCardProps) {
+export function GameCard({ title, description, flipped = false }: GameCardProps) {
   const motionSafe = useMotionSafe();
   const variants = fadeOnlyVariants(FLIP_VARIANTS, motionSafe);
 
   return (
     <motion.div
       data-flipped={flipped}
-      className={`aspect-[5/7] ${SIZE_CLASSES[size]} rounded-card shadow-card`}
+      className={`${CARD_SIZE} rounded-card border border-glass-edge bg-glass shadow-glass backdrop-blur-[var(--glass-blur)]`}
       variants={variants}
       initial={flipped ? 'back' : 'front'}
       animate={flipped ? 'back' : 'front'}
@@ -54,7 +48,7 @@ export function GameCard({ title, description, size = 'md', flipped = false }: G
       {flipped ? (
         <div className="flex h-full w-full items-center justify-center rounded-card bg-accent" />
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-card bg-surface-raised p-4 text-center">
+        <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-card bg-glass-strong p-4 text-center">
           <h3 className="font-display text-xl font-semibold text-ink">{title}</h3>
           {description ? <p className="text-sm text-ink-muted">{description}</p> : null}
         </div>

@@ -1,6 +1,6 @@
 import { motion, useAnimationControls, useMotionValue, useTransform } from 'framer-motion';
 import type { PanInfo } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { Card } from '@values-cards/shared';
 import { Button } from '../components/Button';
 import { GameCard } from '../components/GameCard';
@@ -41,10 +41,6 @@ export function SwipeCard({ card, onKeep, onDiscard }: SwipeCardProps) {
   const rotate = useTransform(x, [-300, 300], [-15, 15]);
   const controls = useAnimationControls();
 
-  useEffect(() => {
-    containerRef.current?.focus();
-  }, []);
-
   async function commit(direction: 'keep' | 'discard') {
     await controls.start({ ...swipeExitTarget(direction, motionSafe), transition: transition(motionSafe, SPRING) });
     if (direction === 'keep') onKeep();
@@ -68,7 +64,7 @@ export function SwipeCard({ card, onKeep, onDiscard }: SwipeCardProps) {
       tabIndex={0}
       role="group"
       aria-label={`${card.value} card`}
-      className="flex flex-col items-center gap-4 rounded-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="flex flex-col items-center gap-4 rounded-card focus-visible:outline-none focus-visible:shadow-focus"
       onKeyDown={(event) => {
         if (event.key === 'ArrowRight') {
           event.preventDefault();
@@ -89,7 +85,7 @@ export function SwipeCard({ card, onKeep, onDiscard }: SwipeCardProps) {
         onDragEnd={(event, info) => void handleDragEnd(event, info)}
         className="cursor-grab active:cursor-grabbing"
       >
-        <GameCard title={card.value} description={card.description} size="lg" />
+        <GameCard title={card.value} description={card.description} />
       </motion.div>
       <div className="flex gap-4">
         <Button variant="danger" aria-label={`Discard ${card.value}`} onClick={() => void commit('discard')}>

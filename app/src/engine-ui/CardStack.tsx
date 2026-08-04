@@ -18,7 +18,7 @@ export function CardStack({ card, nextCard, remaining, onKeep, onDiscard }: Card
       <div className="relative">
         {nextCard ? (
           <div className="absolute inset-x-0 top-2 z-base flex justify-center opacity-60">
-            <GameCard title={nextCard.value} description={nextCard.description} size="lg" />
+            <GameCard title={nextCard.value} description={nextCard.description} />
           </div>
         ) : null}
         <div className="relative z-card">

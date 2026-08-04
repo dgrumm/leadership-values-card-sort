@@ -305,7 +305,7 @@ function SortBody({
         {finalCards.map((card, index) => (
           <li key={card.value} className="flex flex-col items-center gap-2">
             {isRanked ? <p className="text-sm font-semibold text-ink-muted">{index + 1}</p> : null}
-            <GameCard title={card.value} description={card.description} size="md" />
+            <GameCard title={card.value} description={card.description} />
           </li>
         ))}
       </ol>
@@ -388,7 +388,7 @@ function DemoSort() {
         {finalCards.map((card, index) => (
           <li key={card.value} className="flex flex-col items-center gap-2">
             {isRanked ? <p className="text-sm font-semibold text-ink-muted">{index + 1}</p> : null}
-            <GameCard title={card.value} description={card.description} size="md" />
+            <GameCard title={card.value} description={card.description} />
           </li>
         ))}
       </ol>

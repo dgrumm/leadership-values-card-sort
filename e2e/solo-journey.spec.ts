@@ -77,6 +77,8 @@ test('solo journey (keyboard-only): sort -> trim -> next round -> rank -> result
   // Round 1: over-keep 10 of 12 via keyboard alone.
   for (let i = 0; i < 12; i++) {
     const remainingBefore = 12 - i;
+    // 00.4 removed the mount autofocus, so each new card (a remount) needs a Tab first.
+    await page.keyboard.press('Tab');
     await page.keyboard.press(i < 10 ? 'ArrowRight' : 'ArrowLeft');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
@@ -101,6 +103,7 @@ test('solo journey (keyboard-only): sort -> trim -> next round -> rank -> result
   await expect(page.getByText('8 left')).toBeVisible();
   for (let i = 0; i < 8; i++) {
     const remainingBefore = 8 - i;
+    await page.keyboard.press('Tab');
     await page.keyboard.press(i < 3 ? 'ArrowRight' : 'ArrowLeft');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });

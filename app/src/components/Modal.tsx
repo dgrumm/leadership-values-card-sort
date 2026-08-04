@@ -70,7 +70,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-modal flex items-center justify-center bg-ink/40"
+      className="fixed inset-0 z-modal flex items-center justify-center bg-ink/40 backdrop-blur-[var(--glass-blur)]"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -81,7 +81,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        className="max-w-md rounded-sheet bg-surface-raised p-6 shadow-sheet outline-none"
+        className="max-w-md rounded-sheet border border-glass-edge bg-glass-strong p-6 shadow-glass outline-none backdrop-blur-[var(--glass-blur)]"
       >
         <h2 id="modal-title" className="mb-4 font-display text-xl font-semibold text-ink">
           {title}

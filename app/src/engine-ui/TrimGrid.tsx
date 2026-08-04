@@ -83,7 +83,10 @@ export function TrimGrid({ cards, cut, limit, onToggleCut, onConfirm }: TrimGrid
           {remainingToCut > 0 ? `Cut ${remainingToCut} more` : `${cards.length - cut.length} kept — ready to continue`}
         </p>
       </div>
-      <div role="list" className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div
+        role="list"
+        className="grid grid-cols-2 gap-4 rounded-card border border-glass-edge bg-glass p-4 shadow-glass backdrop-blur-[var(--glass-blur)] sm:grid-cols-3"
+      >
         {cards.map((card, index) => {
           const isCut = cut.includes(card.value);
           return (
@@ -100,9 +103,9 @@ export function TrimGrid({ cards, cut, limit, onToggleCut, onConfirm }: TrimGrid
               onFocus={() => setFocusIndex(index)}
               onKeyDown={(event) => onKeyDown(event, index)}
               onClick={() => onToggleCut(card.value)}
-              className={`relative flex flex-col items-center gap-2 rounded-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${isCut ? 'opacity-50' : ''}`}
+              className={`relative flex flex-col items-center gap-2 rounded-card focus-visible:outline-none focus-visible:shadow-focus ${isCut ? 'opacity-50' : ''}`}
             >
-              <GameCard title={card.value} description={card.description} size="sm" />
+              <GameCard title={card.value} description={card.description} />
               {isCut ? (
                 <span
                   aria-hidden="true"
