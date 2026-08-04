@@ -54,7 +54,7 @@ export function Create() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <h1 className="font-display text-3xl font-semibold">Start a game</h1>
 
       <label className="flex w-full max-w-sm flex-col gap-1 text-sm font-semibold" htmlFor="creator-name">
@@ -144,7 +144,7 @@ function CreateLobby({ code, creatorToken, name }: { code: string; creatorToken:
   const token = loadToken(code);
   if (!state || !token || !state.participants[token.participantId]) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface p-8 text-ink">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-ink">
         <ConnectionPill connection={connection} />
         <h1 className="font-display text-2xl font-semibold">Creating your game…</h1>
       </main>

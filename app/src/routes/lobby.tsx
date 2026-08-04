@@ -48,7 +48,7 @@ export function Lobby({ code, state, participantId, send }: LobbyProps) {
   const draftValid = validateConfig(draft).ok;
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-8 bg-surface p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-8 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{state.config.title}</h1>
 
       <section className="flex flex-col items-center gap-3">
