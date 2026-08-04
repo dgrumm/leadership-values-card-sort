@@ -38,12 +38,23 @@ export function Create() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ config }),
       });
-      if (!response.ok) throw new Error('create failed');
+      if (!response.ok) {
+        // A 502/503/504 means Vite proxied /api to a game server that isn't answering —
+        // almost always the party dev server not running. Say so, instead of a generic
+        // "try again" that sent people re-clicking a button that can't work.
+        setCreateError(
+          response.status >= 502
+            ? 'Can’t reach the game server. Is it running? (dev: pnpm dev in party/)'
+            : `The server rejected these settings (${response.status}). Adjust and try again.`,
+        );
+        return;
+      }
       const body = (await response.json()) as { code: string; creatorToken: string };
       localStorage.setItem(CREATOR_TOKEN_KEY(body.code), body.creatorToken);
       setCreated(body);
     } catch {
-      setCreateError('Could not create a game. Try again.');
+      // fetch itself threw — network unreachable, not a rejected request.
+      setCreateError('Can’t reach the game server. Check your connection and try again.');
     } finally {
       setCreating(false);
     }
