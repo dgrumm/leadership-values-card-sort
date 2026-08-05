@@ -222,8 +222,17 @@ export function applyIntent(state: SessionState, intent: Intent, deps: ApplyInte
     case 'setSpotlight': {
       const participant = requireParticipant(state, intent.participantId);
       if (!participant) return reject('UNKNOWN_PARTICIPANT', 'no participant with that id');
+      // The wall (spec 02.3) is read-only once the facilitator concludes — the DO is the
+      // one writer (tenet 1), so this is enforced here, not just by a disabled client control.
+      if (state.phase === 'concluded') {
+        return reject('SESSION_CONCLUDED', 'this session has concluded; the wall is read-only');
+      }
       const spotlightingSelf = intent.target === intent.participantId;
-      if (!spotlightingSelf && participant.role !== 'facilitator') {
+      // Releasing (`target: null`) is the mirror of self-spotlighting, not "spotlighting
+      // someone else" — the owner of the current spotlight may always clear it (spec
+      // 02.3: "facilitator or the owner, for self-spotlight, releases with null").
+      const releasingOwnSpotlight = intent.target === null && state.spotlight === intent.participantId;
+      if (!spotlightingSelf && !releasingOwnSpotlight && participant.role !== 'facilitator') {
         return reject('FORBIDDEN', 'only the facilitator can spotlight another participant');
       }
       const next = recordProcessed({ ...state, spotlight: intent.target }, intent.participantId, intent.intentId);

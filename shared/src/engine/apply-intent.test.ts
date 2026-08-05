@@ -343,6 +343,40 @@ describe('applyIntent: setSpotlight', () => {
     if ('rejection' in result) throw new Error('unexpected rejection');
     expect(result.state.spotlight).toBe(PARTICIPANT);
   });
+
+  it('lets the owner release their own spotlight with target: null', () => {
+    const state = baseState({ spotlight: PARTICIPANT });
+    const result = applyIntent(state, {
+      type: 'setSpotlight',
+      intentId: 'i1',
+      participantId: PARTICIPANT,
+      target: null,
+    });
+    if ('rejection' in result) throw new Error('unexpected rejection');
+    expect(result.state.spotlight).toBeNull();
+  });
+
+  it('rejects a non-facilitator clearing someone else\'s spotlight', () => {
+    const state = baseState({ spotlight: FACILITATOR });
+    const result = applyIntent(state, {
+      type: 'setSpotlight',
+      intentId: 'i1',
+      participantId: PARTICIPANT,
+      target: null,
+    });
+    expect('rejection' in result).toBe(true);
+  });
+
+  it('rejects spotlighting once the session has concluded — the wall is read-only', () => {
+    const state = baseState({ phase: 'concluded' });
+    const result = applyIntent(state, {
+      type: 'setSpotlight',
+      intentId: 'i1',
+      participantId: FACILITATOR,
+      target: PARTICIPANT,
+    });
+    expect('rejection' in result).toBe(true);
+  });
 });
 
 describe('applyIntent: conclude', () => {

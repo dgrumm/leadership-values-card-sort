@@ -100,7 +100,8 @@ test('refresh during RankBoard preserves the exact rank order (invariant 4)', as
 
   // Ranking round-trips onto the result screen too, including through a
   // second refresh once it's the terminal state (the result screen's cards
-  // aren't numbered paragraphs like RankBoard's, so read the GameCard title).
+  // are the Plaque component's (02.3) mini cards, not RankBoard's numbered
+  // paragraphs — read the plaque card's title).
   //
   // dnd-kit stops propagation on the synthetic click that trails a pointer
   // drag for 50ms after pointerup (browsers fire that click regardless of
@@ -113,7 +114,7 @@ test('refresh during RankBoard preserves the exact rank order (invariant 4)', as
     const count = await cards.count();
     const names: string[] = [];
     for (let i = 0; i < count; i++) {
-      names.push((await cards.nth(i).locator('h3').first().textContent()) ?? '');
+      names.push((await cards.nth(i).locator('p').first().textContent()) ?? '');
     }
     return names;
   };
