@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { GameConfigSchema, type Card, type GameConfig, type SessionState } from '@values-cards/shared';
 import { Button } from '../components/Button';
-import { GameCard } from '../components/GameCard';
 import { GatedContinue } from '../components/GatedContinue';
 import { RevealControl } from '../components/RevealControl';
 import { Roster } from '../components/Roster';
 import { Toast } from '../components/Toast';
+import { Plaque } from '../engine-ui/Plaque';
 import { RankBoard } from '../engine-ui/RankBoard';
 import { SortRound } from '../engine-ui/SortRound';
 import { TrimGrid } from '../engine-ui/TrimGrid';
@@ -192,18 +192,26 @@ function ActiveSort({
     };
   }, [useSortStore, config, participantId]);
 
+  // The wall (02.3) is the natural end state after the facilitator concludes —
+  // every connected participant hands off there automatically.
+  useEffect(() => {
+    if (state.phase === 'concluded') window.location.assign(`/wall/${code}`);
+  }, [state.phase, code]);
+
   return (
     <>
       <div className="fixed right-4 top-4 z-toast">
         <Roster participants={state.participants} selfId={participantId} collapsible />
       </div>
       <SortBody
+        code={code}
         config={config}
         useSortStore={useSortStore}
         phase={phase}
         byId={byId}
         gate={state.gate}
         participantId={participantId}
+        participant={state.participants[participantId]}
         reveals={state.reveals[participantId] ?? {}}
         send={send}
       />
@@ -212,21 +220,25 @@ function ActiveSort({
 }
 
 function SortBody({
+  code,
   config,
   useSortStore,
   phase,
   byId,
   gate,
   participantId,
+  participant,
   reveals,
   send,
 }: {
+  code: string;
   config: GameConfig;
   useSortStore: SortStoreHook;
   phase: ReturnType<typeof getPhase>;
   byId: Map<string, Card>;
   gate: SessionState['gate'];
   participantId: string;
+  participant: SessionState['participants'][string] | undefined;
   reveals: SessionState['reveals'][string];
   send: UseSessionResult['send'];
 }) {
@@ -265,6 +277,9 @@ function SortBody({
         </p>
         <GatedContinue gate={gate} nextRound={state.round + 1} onContinue={() => useSortStore.getState().continueRound()} />
         {roundCfg ? revealControlFor(roundCfg, cardsInOrder(state.kept, byId)) : null}
+        <a href={`/wall/${code}`} className="text-sm font-semibold text-accent underline">
+          View the wall
+        </a>
       </main>
     );
   }
@@ -293,7 +308,9 @@ function SortBody({
     );
   }
 
-  // result — local-only plaque preview; wall (02.3) and export (04.1) build on this later.
+  // result — the plaque preview (01.4); wall (02.3) and export (04.1) build on this
+  // same `Plaque` component, so what a participant previews here is exactly what
+  // the wall (and eventually the exported artifact) shows.
   const finalRoundCfg = config.rounds[state.round - 1];
   const finalCards = cardsInOrder(state.ranking ?? state.kept, byId);
   const isRanked = finalRoundCfg?.rank === true;
@@ -301,20 +318,22 @@ function SortBody({
     <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{config.title}</h1>
       <p className="text-ink-muted">Your final cards</p>
-      <ol className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {finalCards.map((card, index) => (
-          <li key={card.value} className="flex flex-col items-center gap-2">
-            {isRanked ? <p className="text-sm font-semibold text-ink-muted">{index + 1}</p> : null}
-            <GameCard title={card.value} description={card.description} />
-          </li>
-        ))}
-      </ol>
+      <Plaque
+        name={participant?.name ?? 'You'}
+        avatarHue={participant?.avatarHue ?? 0}
+        gameTitle={config.title}
+        cards={finalCards}
+        ranked={isRanked}
+      />
       <div className="flex gap-4">
         {finalRoundCfg ? revealControlFor(finalRoundCfg, finalCards) : null}
         <Button variant="secondary" disabled title="Coming soon">
           Download
         </Button>
       </div>
+      <a href={`/wall/${code}`} className="text-sm font-semibold text-accent underline">
+        View the wall
+      </a>
     </main>
   );
 }
@@ -376,22 +395,15 @@ function DemoSort() {
     );
   }
 
-  // result — local-only plaque preview; reveal (02.2), wall (02.3) and
-  // export (04.1) build on this later.
+  // result — the plaque preview (01.4/02.3's `Plaque`); this standalone demo has no
+  // joined session, so Reveal/Download stay disabled here (SessionSort wires them up).
   const finalCards = cardsInOrder(state.ranking ?? state.kept, byId);
   const isRanked = DEMO_CONFIG.rounds[DEMO_CONFIG.rounds.length - 1]?.rank === true;
   return (
     <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
       <h1 className="font-display text-2xl font-semibold">{DEMO_CONFIG.title}</h1>
       <p className="text-ink-muted">Your final cards</p>
-      <ol className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {finalCards.map((card, index) => (
-          <li key={card.value} className="flex flex-col items-center gap-2">
-            {isRanked ? <p className="text-sm font-semibold text-ink-muted">{index + 1}</p> : null}
-            <GameCard title={card.value} description={card.description} />
-          </li>
-        ))}
-      </ol>
+      <Plaque name="You" avatarHue={0} gameTitle={DEMO_CONFIG.title} cards={finalCards} ranked={isRanked} />
       <div className="flex gap-4">
         <Button variant="secondary" disabled title="Coming soon">
           Reveal

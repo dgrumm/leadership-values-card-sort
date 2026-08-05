@@ -5,6 +5,7 @@ import { Join } from './routes/Join';
 import { KitchenSink } from './routes/KitchenSink';
 import { Landing } from './routes/Landing';
 import { Sort } from './routes/Sort';
+import { Wall } from './routes/wall/Wall';
 import { MotionProvider } from './theme/motion';
 import './theme/tokens.css';
 
@@ -14,6 +15,7 @@ if (!rootElement) {
 }
 
 const JOIN_PATH_PATTERN = /^\/join(?:\/([A-Z0-9]{6}))?$/i;
+const WALL_PATH_PATTERN = /^\/wall\/([A-Z0-9]{6})$/i;
 
 // Still a hardcoded pathname check, not a router — `/sort` remains a fixed-config
 // demo entry point (wiring it to a real joined session is a later spec); a real
@@ -22,6 +24,8 @@ function currentRoute() {
   const path = window.location.pathname;
   const joinMatch = path.match(JOIN_PATH_PATTERN);
   if (joinMatch) return <Join code={joinMatch[1]} />;
+  const wallMatch = path.match(WALL_PATH_PATTERN);
+  if (wallMatch) return <Wall code={(wallMatch[1] as string).toUpperCase()} />;
   switch (path) {
     case '/create':
       return <Create />;
