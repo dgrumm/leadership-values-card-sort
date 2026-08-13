@@ -15,6 +15,12 @@ const FOCUSABLE_SELECTOR =
  * Focus-trapped dialog rendered in a portal at `--z-index-modal`. Moves focus
  * in on open, cycles Tab/Shift+Tab within its content, restores focus to the
  * trigger on close, and closes on Escape or overlay click.
+ *
+ * Sizing lives here, not in callers: `m-4` keeps a gutter at 320-375px (where
+ * `max-w-md` alone ran the dialog edge-to-edge), and `max-h` + `overflow-y-auto`
+ * mean tall content scrolls instead of overflowing the viewport unreachably.
+ * The lobby used to hand-roll its own `max-h-[70vh] overflow-y-auto` to work
+ * around their absence.
  */
 export function Modal({ open, onClose, title, children }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -70,7 +76,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-modal flex items-center justify-center bg-ink/40 backdrop-blur-[var(--glass-blur)]"
+      className="glass-scrim fixed inset-0 z-modal flex items-center justify-center"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -81,7 +87,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        className="max-w-md rounded-sheet glass-panel-strong p-6 outline-none"
+        className="m-4 max-h-[85vh] max-w-md overflow-y-auto rounded-sheet glass-panel-strong p-6 outline-none"
       >
         <h2 id="modal-title" className="mb-4 font-display text-xl font-semibold text-ink">
           {title}

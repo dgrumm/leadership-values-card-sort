@@ -14,12 +14,19 @@ pnpm install
 cp party/.dev.vars.example party/.dev.vars   # one-time: the DO needs a token-signing secret
 ```
 
-Then two terminals:
+Then, from the repo root:
 
 ```bash
-cd app && pnpm dev      # http://localhost:5173
-cd party && pnpm dev    # the session Durable Object on :8799
+pnpm dev        # both: the app on :5173 + the session Durable Object on :8799
+pnpm dev:stop   # frees both ports (see below — you will want this)
 ```
+
+Prefer separate terminals for uninterleaved logs? `pnpm dev:app` and `pnpm dev:party` run
+each half on its own, no `cd` needed.
+
+**Always stop with `pnpm dev:stop`.** It kills whatever is listening *by port*, which matters:
+wrangler's `workerd` child outlives `pkill -f wrangler`, keeps holding :8799, and makes the
+next `pnpm dev` fail on a port that looks free. `dev:stop` gets it; process-name kills don't.
 
 Vite proxies `/api` to the Durable Object, so use the app origin (`:5173`) in the browser —
 not the wrangler port. The dev port is set once in `party/wrangler.jsonc`; if you change it,

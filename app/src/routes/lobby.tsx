@@ -98,7 +98,7 @@ export function Lobby({ code, state, participantId, send }: LobbyProps) {
       </div>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Edit game">
-        <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto">
+        <div className="flex flex-col gap-6">
           <Designer
             config={draft}
             onTitleChange={(title) => setDraft({ ...draft, title })}

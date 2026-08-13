@@ -166,7 +166,7 @@ export function WallBody({
   return (
     <main
       data-projector={projector}
-      className="flex min-h-screen flex-col items-center gap-6 p-6 text-ink sm:p-8"
+      className="flex min-h-screen flex-col items-center gap-8 p-6 text-ink sm:gap-10 sm:p-12"
     >
       <div aria-live="polite" role="status" className="sr-only">
         {announcement}
@@ -247,7 +247,9 @@ function WallTile({
   if (!snapshot) return null;
 
   return (
-    <div className={`flex flex-col items-center gap-2 transition-opacity ${dimmed ? 'opacity-30' : ''}`}>
+    <div
+      className={`flex flex-col items-center gap-2 transition-opacity duration-[var(--duration-snap)] ease-out ${dimmed ? 'opacity-30' : ''}`}
+    >
       <button
         type="button"
         onClick={canSpotlight ? onToggleSpotlight : undefined}

@@ -112,18 +112,30 @@ describe('liquid glass token color pairings (WCAG AA)', () => {
     });
   }
 
-  // Worst-case text-on-panel: glass-strong composited over the lightest (highest-luminance)
-  // iris stop — the panel's translucency lets the brightest possible field bleed through.
-  it('ink and ink-muted on glass-strong over the lightest iris stop pass AA for normal text', () => {
-    const lightestStop = IRIS_STOPS.map((stop) => hexToRgb(tokenHex(stop))).reduce((a, b) =>
-      relativeLuminance(a) > relativeLuminance(b) ? a : b,
-    );
-    const composited = compositeOver(tokenRgba('glass-strong'), lightestStop);
-    expect(contrastRatioRgb(hexToRgb(tokenHex('ink')), composited)).toBeGreaterThanOrEqual(
-      AA_NORMAL,
-    );
-    expect(contrastRatioRgb(hexToRgb(tokenHex('ink-muted')), composited)).toBeGreaterThanOrEqual(
-      AA_NORMAL,
-    );
-  });
+  /*
+   * Text on a translucent panel, asserted over EVERY iris stop.
+   *
+   * This previously composited over the *lightest* stop only, described as the
+   * worst case. It is the best case: ink is dark, so a brighter field behind the
+   * panel raises contrast. The true worst case is the darkest stop (lilac —
+   * ink-muted scores 5.89 there vs 6.02 over mint). Both pass today, so nothing
+   * was broken; the guard was simply measuring the favourable end and would not
+   * have caught a future stop that darkens.
+   *
+   * Rather than swap one cherry-picked stop for another, cover all five — then
+   * the assertion holds regardless of which end is worst, and adding a stop
+   * extends the guard automatically. This is product invariant 6's guard, so it
+   * should not depend on getting the luminance argument right.
+   */
+  for (const stop of IRIS_STOPS) {
+    it(`ink and ink-muted on glass-strong over --color-${stop} pass AA for normal text`, () => {
+      const composited = compositeOver(tokenRgba('glass-strong'), hexToRgb(tokenHex(stop)));
+      expect(contrastRatioRgb(hexToRgb(tokenHex('ink')), composited)).toBeGreaterThanOrEqual(
+        AA_NORMAL,
+      );
+      expect(contrastRatioRgb(hexToRgb(tokenHex('ink-muted')), composited)).toBeGreaterThanOrEqual(
+        AA_NORMAL,
+      );
+    });
+  }
 });

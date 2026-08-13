@@ -63,7 +63,7 @@ export function SortRound({ config, useSortStore }: SortRoundProps) {
   }, [useSortStore]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-8 p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-6 text-ink">
       <div aria-live="polite" role="status" className="sr-only">
         {announcement}
       </div>

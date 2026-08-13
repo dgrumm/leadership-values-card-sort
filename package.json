@@ -10,6 +10,10 @@
     "npm": "please-use-pnpm"
   },
   "scripts": {
+    "dev": "pnpm --parallel --filter @values-cards/app --filter @values-cards/party run dev",
+    "dev:app": "pnpm --filter @values-cards/app run dev",
+    "dev:party": "pnpm --filter @values-cards/party run dev",
+    "dev:stop": "lsof -ti tcp:5173,8799 | xargs kill",
     "typecheck": "pnpm -r run typecheck && tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint .",
     "token:lint": "node scripts/token-lint.mjs",

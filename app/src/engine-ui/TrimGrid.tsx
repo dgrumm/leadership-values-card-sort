@@ -73,7 +73,7 @@ export function TrimGrid({ cards, cut, limit, onToggleCut, onConfirm }: TrimGrid
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center gap-6 p-8 text-ink">
+    <main className="flex min-h-screen flex-col items-center gap-6 p-6 text-ink">
       <div aria-live="polite" role="status" className="sr-only">
         {announcement}
       </div>

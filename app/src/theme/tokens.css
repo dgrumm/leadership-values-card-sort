@@ -66,6 +66,19 @@
   --spring-stiffness: 420;
   --spring-damping: 32;
 
+  /*
+   * Named easings. Every CSS transition must reference one of these — without
+   * them a bare `transition-colors` silently runs on the browser default
+   * `ease`, which is the one curve the motion rules forbid. Exponential in/out
+   * (easings.net expo set); deliberately no overshoot, so UI state never
+   * bounces. `@theme --ease-*` is Tailwind v4's namespace for the `ease-*`
+   * utilities, so these override Tailwind's defaults rather than sitting beside
+   * them.
+   */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+
   /* Typography */
   --font-display: 'Fraunces', ui-serif, Georgia, serif;
   --font-body:
@@ -77,6 +90,23 @@
   --text-xl: 1.375rem;
   --text-2xl: 1.75rem;
   --text-3xl: 2.25rem;
+  /*
+   * Display rungs. `@theme` adds keys without clearing Tailwind's defaults, so
+   * before these existed `text-5xl` silently resolved to Tailwind's stock 3rem
+   * — the scale read as authoritative but wasn't. Values match the stock ones
+   * the two call sites were already getting, so declaring them is a no-op
+   * visually and a real one for the system.
+   */
+  --text-4xl: 2.75rem;
+  --text-5xl: 3rem;
+  /*
+   * Paired leading. Tailwind compiles `text-5xl` to
+   * `var(--tw-leading, var(--text-5xl--line-height))`, so a rung declared
+   * without its line-height silently computes to `normal` (~1.2) — too airy for
+   * display type, and it would have been a quiet regression from the stock 1.
+   */
+  --text-4xl--line-height: 1.05;
+  --text-5xl--line-height: 1;
 }
 
 /*
@@ -86,6 +116,29 @@
  * since this element is outside React).
  */
 @layer base {
+  /*
+   * `clip`, never `hidden`: both stop a stray wide child from producing a
+   * horizontal scrollbar on mobile, but `hidden` also creates a scroll
+   * container, which silently breaks `position: sticky` on descendants.
+   */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  /*
+   * A single long value name (deck cards are user-authored) must be able to
+   * break inside the word at display sizes rather than overflow its column.
+   * `min-width: 0` is the other half — without it a flex/grid child refuses to
+   * shrink below its min-content width and wraps nothing.
+   */
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
   body {
     min-height: 100vh;
     background-image: linear-gradient(
@@ -139,5 +192,16 @@
 
   .glass-panel-strong {
     background-color: var(--color-glass-strong);
+  }
+
+  /*
+   * Full-bleed scrim behind a modal/sheet. Not a `.glass-panel`: a scrim wants
+   * the blur and a dimming wash but explicitly *not* the panel's border or
+   * shadow. Exists so overlays stop re-assembling `backdrop-blur-[var(...)]`
+   * inline — same fragmentation 00.5 removed from the panels.
+   */
+  .glass-scrim {
+    background-color: rgb(38 32 27 / 40%);
+    backdrop-filter: blur(var(--glass-blur));
   }
 }
