@@ -45,6 +45,16 @@
       "status": "done"
     },
     {
+      "id": "00.6",
+      "title": "Design packs",
+      "phase": "00-foundation",
+      "depends_on": [
+        "00.4",
+        "00.5"
+      ],
+      "status": "not-started"
+    },
+    {
       "id": "01.1",
       "title": "Session Durable Object",
       "phase": "01-core",
@@ -133,7 +143,8 @@
       "phase": "03-config",
       "depends_on": [
         "03.1",
-        "00.3"
+        "00.3",
+        "00.6"
       ],
       "status": "not-started"
     },
