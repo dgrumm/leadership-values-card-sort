@@ -3,8 +3,12 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// 00.5: glass is the one system-wide surface — no app screen may fall back to the
-// opaque 00.3 `bg-surface-raised` panel where a themed surface is intended.
+// 00.6: pack-agnostic surface-composition gate. Nothing outside theme/ may
+// hand-assemble a surface (fill + blur + border + shadow) instead of composing
+// `.panel` / `.panel-strong` / `.scrim` — the opaque `bg-surface-raised` fallback is
+// exactly that hand-assembly, so it remains the detection signature (00.5's rule,
+// generalized: it was never about glass specifically, it was about not bypassing
+// the shared surface primitives).
 const APP_SRC = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /*
@@ -66,7 +70,7 @@ const INTENTIONALLY_OPAQUE: Record<string, string> = {
     'readable regardless of what scrolls beneath it.',
 };
 
-describe('glass surface coverage', () => {
+describe('surface composition coverage', () => {
   it('no unlisted bg-surface-raised anywhere under app/src', () => {
     const allowed = new Set(Object.keys(INTENTIONALLY_OPAQUE).map((p) => join(APP_SRC, p)));
     const unexpected = violations(collectFiles(APP_SRC)).filter(

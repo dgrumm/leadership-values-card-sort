@@ -33,7 +33,7 @@ export function Sheet({ open, onClose, children }: SheetProps) {
   return createPortal(
     <div
       role="region"
-      className="fixed inset-x-0 bottom-0 z-sheet flex max-h-[85dvh] flex-col rounded-t-sheet glass-panel-strong p-6"
+      className="fixed inset-x-0 bottom-0 z-sheet flex max-h-[85dvh] flex-col rounded-t-sheet panel-strong p-6"
     >
       {children}
     </div>,

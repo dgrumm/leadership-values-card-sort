@@ -1,37 +1,24 @@
 @import 'tailwindcss';
-@import '@fontsource/fraunces/latin-600.css';
-@import '@fontsource/fraunces/latin-700.css';
+/*
+ * The active pack (app/src/theme/packs/index.ts and this alias read the same
+ * VITE_PACK env var — vite.config.ts). Sets --color-*, --shadow-{card,card-lifted,
+ * sheet,panel}, --font-*, --panel-*, --scrim-*, --shadow-focus-ring and --field-image
+ * via its own @theme/:root blocks (Tailwind v4 merges @theme across imports), and
+ * @imports only that pack's font. Everything below is pack-INDEPENDENT: spacing,
+ * radius, z-index, the type scale, durations, easings — "a pack changes how the app
+ * looks, not how it is measured."
+ */
+@import '@active-pack';
 
 /*
- * Design tokens (tactile-warm). This file is the only place colors exist —
- * the token-lint gate forbids raw palette classes and hex literals
- * everywhere outside app/src/theme/. Every color pairing a primitive
- * defaults to is asserted AA-compliant in tokens.test.ts.
+ * Structural design tokens (every pack). Colors/shadows/fonts are NOT here — see
+ * theme/packs/. The token-lint gate forbids raw palette classes and hex literals
+ * everywhere outside app/src/theme/.
  */
 @theme {
-  /* Colors */
-  --color-surface: #faf6ee;
-  --color-surface-raised: #ffffff;
-  --color-ink: #26201b;
-  --color-ink-muted: #6b5f54;
-  --color-accent: #a8461f;
-  --color-accent-hover: #8f3a19;
-  --color-accent-subtle: #f2ddce;
-  --color-on-accent: #ffffff;
-  --color-danger: #b3261e;
-  --color-success: #2e6b3e;
-
-  /* Iridescent field — light pastel stops; each passes AA with ink/ink-muted (tokens.test.ts) */
-  --color-iris-peach: #fbe4d8;
-  --color-iris-pink: #fbdce6;
-  --color-iris-lilac: #e9def8;
-  --color-iris-sky: #dcecfb;
-  --color-iris-mint: #dcf3e6;
-
-  /* Glass surfaces (rgba — allowed in theme/) */
-  --color-glass: rgb(255 255 255 / 55%);
-  --color-glass-strong: rgb(255 255 255 / 80%);
-  --color-glass-edge: rgb(255 255 255 / 65%);
+  /* Danger/success and focus-ring inner ring both read --color-surface / other
+     pack-supplied colors via var() below — no literal colors in this block. */
+  --shadow-focus: 0 0 0 3px var(--color-surface), 0 0 0 6px var(--shadow-focus-ring);
 
   /* Spacing (4px base) */
   --spacing: 0.25rem;
@@ -40,16 +27,6 @@
   --radius-card: 1rem;
   --radius-control: 0.5rem;
   --radius-sheet: 1.25rem;
-
-  /* Layered soft shadows */
-  --shadow-card: 0 1px 2px rgb(38 32 27 / 0.06), 0 4px 10px rgb(38 32 27 / 0.08);
-  --shadow-card-lifted: 0 4px 8px rgb(38 32 27 / 0.1), 0 12px 24px rgb(38 32 27 / 0.14);
-  --shadow-sheet: 0 -4px 12px rgb(38 32 27 / 0.08), 0 -16px 40px rgb(38 32 27 / 0.16);
-  --shadow-glass: 0 8px 32px rgb(38 32 27 / 0.14), inset 0 1px 0 rgb(255 255 255 / 60%);
-  --shadow-focus: 0 0 0 3px rgb(255 255 255 / 90%), 0 0 0 6px rgb(168 70 31 / 45%);
-
-  /* Glass depth */
-  --glass-blur: 16px;
 
   /* Z-index scale (--z-index-* is Tailwind v4's namespace for the `z-*` utilities) */
   --z-index-base: 0;
@@ -62,7 +39,6 @@
   --duration-flip: 250ms;
   --duration-snap: 200ms;
   --duration-sheet: 300ms;
-  --duration-iris: 28s;
   --spring-stiffness: 420;
   --spring-damping: 32;
 
@@ -79,10 +55,7 @@
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
 
-  /* Typography */
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
-  --font-body:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Typography scale. --font-display/--font-body are pack-supplied (theme/packs/). */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -110,10 +83,11 @@
 }
 
 /*
- * App-wide iridescent field: a slow-drifting multi-stop pastel gradient
- * behind everything. Static under prefers-reduced-motion (matches the
- * motion.tsx contract — the same media feature, checked directly in CSS
- * since this element is outside React).
+ * App-wide field: a pack-supplied background-image (00.6) — a static multi-stop
+ * gradient for tactile-warm, fixed radial blooms over a dark canvas for aurora.
+ * Static in every pack; no genre permits an animated full-canvas field, so there is
+ * no prefers-reduced-motion branch here (motion.tsx still handles React-driven
+ * motion elsewhere).
  */
 @layer base {
   /*
@@ -141,67 +115,48 @@
 
   body {
     min-height: 100vh;
-    background-image: linear-gradient(
-      120deg,
-      var(--color-iris-peach),
-      var(--color-iris-pink),
-      var(--color-iris-lilac),
-      var(--color-iris-sky),
-      var(--color-iris-mint),
-      var(--color-iris-peach)
-    );
-    background-size: 300% 300%;
-    animation: iris-drift var(--duration-iris) ease-in-out infinite alternate;
-  }
-
-  @keyframes iris-drift {
-    from {
-      background-position: 0% 50%;
-    }
-    to {
-      background-position: 100% 50%;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    body {
-      animation: none;
-      background-position: 50% 50%;
-    }
+    background-color: var(--color-surface);
+    background-image: var(--field-image);
   }
 }
 
 /*
- * The one glass surface, composed everywhere a panel is needed (00.5). Screens apply
- * `.glass-panel` / `.glass-panel-strong` rather than re-assembling fill + blur + edge +
- * shadow from raw utilities — that fragmentation is exactly what left most of 00.4's
- * screens on opaque `bg-surface-raised`. Text-bearing panels use `-strong` so
- * `--color-ink`/`--color-ink-muted` keep AA (tokens.test.ts).
+ * The one surface primitive, composed everywhere a panel is needed (00.5, generalized
+ * pack-neutral by 00.6). Screens apply `.panel` / `.panel-strong` rather than
+ * re-assembling fill + blur + edge + shadow from raw utilities — that fragmentation is
+ * exactly what left most of 00.4's screens on opaque `bg-surface-raised`. Every value
+ * here is pack-supplied, so tactile-warm's glass and aurora's flat opaque panel
+ * (--panel-blur: 0px, --panel-border: transparent) are the same class bodies. Text-
+ * bearing panels use `-strong` so `--color-ink`/`--color-ink-muted` keep AA
+ * (tokens.test.ts).
  */
 @layer components {
-  .glass-panel,
-  .glass-panel-strong {
-    border: 1px solid var(--color-glass-edge);
-    box-shadow: var(--shadow-glass);
-    backdrop-filter: blur(var(--glass-blur));
+  .panel,
+  .panel-strong {
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-panel);
+    /* --panel-blur is the WHOLE filter value (`blur(16px)` or `none`), not a radius —
+       `blur(0px)` is not the same computed style as `none` (browsers don't normalize
+       it), and "no blur" is exactly what aurora needs to declare. */
+    backdrop-filter: var(--panel-blur);
   }
 
-  .glass-panel {
-    background-color: var(--color-glass);
+  .panel {
+    background-color: var(--panel-bg);
   }
 
-  .glass-panel-strong {
-    background-color: var(--color-glass-strong);
+  .panel-strong {
+    background-color: var(--panel-bg-strong);
   }
 
   /*
-   * Full-bleed scrim behind a modal/sheet. Not a `.glass-panel`: a scrim wants
+   * Full-bleed scrim behind a modal/sheet. Not a `.panel`: a scrim wants
    * the blur and a dimming wash but explicitly *not* the panel's border or
    * shadow. Exists so overlays stop re-assembling `backdrop-blur-[var(...)]`
    * inline — same fragmentation 00.5 removed from the panels.
    */
-  .glass-scrim {
-    background-color: rgb(38 32 27 / 40%);
-    backdrop-filter: blur(var(--glass-blur));
+  .scrim {
+    background-color: var(--scrim-bg);
+    backdrop-filter: var(--scrim-blur);
   }
 }

@@ -190,7 +190,7 @@ export function WallBody({
       )}
 
       {tiles.length === 0 ? (
-        <p className={`glass-panel-strong rounded-control p-4 text-ink-muted ${projector ? 'text-2xl' : ''}`}>
+        <p className={`panel-strong rounded-control p-4 text-ink-muted ${projector ? 'text-2xl' : ''}`}>
           No results yet — reveal your cards to add your plaque to the wall.
         </p>
       ) : (

@@ -49,13 +49,13 @@ export function Lobby({ code, state, participantId, send }: LobbyProps) {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 p-8 text-ink">
-      <div className="glass-panel-strong flex w-full max-w-md flex-col items-center gap-8 rounded-sheet p-8">
+      <div className="panel-strong flex w-full max-w-md flex-col items-center gap-8 rounded-sheet p-8">
         <h1 className="font-display text-2xl font-semibold">{state.config.title}</h1>
 
         <section className="flex flex-col items-center gap-3">
           <p className="font-display text-5xl font-bold tracking-widest">{code}</p>
           <div className="flex items-center gap-2">
-            <input readOnly value={shareLink} aria-label="Share link" className="rounded-control border border-ink-muted glass-panel-strong px-3 py-2 text-sm text-ink" />
+            <input readOnly value={shareLink} aria-label="Share link" className="rounded-control border border-ink-muted panel-strong px-3 py-2 text-sm text-ink" />
             <Button type="button" variant="secondary" size="sm" onClick={copyLink}>
               Copy link
             </Button>
@@ -75,7 +75,7 @@ export function Lobby({ code, state, participantId, send }: LobbyProps) {
           <h2 className="mb-2 font-display text-lg font-semibold">Players</h2>
           <ul className="flex flex-col gap-2">
             {Object.entries(state.participants).map(([id, participant]) => (
-              <li key={id} className="flex items-center justify-between rounded-control border border-ink-muted glass-panel-strong px-3 py-2">
+              <li key={id} className="flex items-center justify-between rounded-control border border-ink-muted panel-strong px-3 py-2">
                 <span>{participant.name}</span>
                 <span className="text-sm text-ink-muted">{participant.role === 'facilitator' ? 'Facilitator' : 'Participant'}</span>
               </li>

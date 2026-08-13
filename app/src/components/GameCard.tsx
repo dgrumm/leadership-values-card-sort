@@ -39,7 +39,7 @@ export function GameCard({ title, description, flipped = false }: GameCardProps)
   return (
     <motion.div
       data-flipped={flipped}
-      className={`${CARD_SIZE} rounded-card glass-panel`}
+      className={`${CARD_SIZE} rounded-card panel`}
       variants={variants}
       initial={flipped ? 'back' : 'front'}
       animate={flipped ? 'back' : 'front'}
@@ -48,7 +48,7 @@ export function GameCard({ title, description, flipped = false }: GameCardProps)
       {flipped ? (
         <div className="flex h-full w-full items-center justify-center rounded-card bg-accent" />
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-card bg-glass-strong p-4 text-center">
+        <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-card bg-[var(--panel-bg-strong)] p-4 text-center">
           <h3 className="font-display text-xl font-semibold text-ink">{title}</h3>
           {description ? <p className="text-sm text-ink-muted">{description}</p> : null}
         </div>

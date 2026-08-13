@@ -9,9 +9,9 @@ import { Toast } from '../components/Toast';
 const VARIANTS: ButtonVariant[] = ['primary', 'secondary', 'ghost', 'danger'];
 
 /**
- * Dev-only showcase of every glass primitive (00.4), driven only by tokens,
- * rendered directly on the app-wide iridescent field (no opaque page
- * background) so the frosted surfaces are visible against it.
+ * Dev-only showcase of every surface primitive (00.4, generalized pack-neutral
+ * by 00.6), driven only by tokens, rendered directly on the app-wide field (no
+ * opaque page background) so each pack's panel treatment is visible against it.
  * Excluded from app navigation; used by E2E and visual review.
  */
 export function KitchenSink() {

@@ -67,7 +67,7 @@ export function Join({ code: initialCode }: JoinProps) {
             onChange={(event) => setCode(event.target.value.toUpperCase())}
             maxLength={6}
             required
-            className="rounded-control border border-ink-muted glass-panel-strong px-4 py-2 text-lg uppercase tracking-widest text-ink"
+            className="rounded-control border border-ink-muted panel-strong px-4 py-2 text-lg uppercase tracking-widest text-ink"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm font-semibold" htmlFor="display-name">
@@ -77,7 +77,7 @@ export function Join({ code: initialCode }: JoinProps) {
             value={name}
             onChange={(event) => setName(event.target.value)}
             required
-            className="rounded-control border border-ink-muted glass-panel-strong px-4 py-2 text-ink"
+            className="rounded-control border border-ink-muted panel-strong px-4 py-2 text-ink"
           />
         </label>
         <Button type="submit">Join</Button>

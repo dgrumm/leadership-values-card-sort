@@ -76,7 +76,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
   return createPortal(
     <div
-      className="glass-scrim fixed inset-0 z-modal flex items-center justify-center"
+      className="scrim fixed inset-0 z-modal flex items-center justify-center"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -87,7 +87,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        className="m-4 max-h-[85vh] max-w-md overflow-y-auto rounded-sheet glass-panel-strong p-6 outline-none"
+        className="m-4 max-h-[85vh] max-w-md overflow-y-auto rounded-sheet panel-strong p-6 outline-none"
       >
         <h2 id="modal-title" className="mb-4 font-display text-xl font-semibold text-ink">
           {title}
