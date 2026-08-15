@@ -118,16 +118,15 @@ const INTENTIONALLY_OPAQUE: Record<string, string> = {
 /**
  * Files that read a pack primitive directly instead of composing a class.
  *
- * Only one, and it is a genuine nesting constraint rather than a shortcut: GameCard's
- * front face sits *inside* the card's own `.panel`, so composing `.panel-strong` there
- * would stack a second border and shadow on top of the first (card-in-card). It needs
- * the fill alone, which no class exposes on its own.
+ * Empty, and worth keeping empty. GameCard used to need an escape: its front face sat
+ * *inside* the card's own `.panel`, so composing `.panel-strong` there would have
+ * stacked a second border and shadow (card-in-card), leaving it needing the fill alone.
+ * 01.5's flip restructured the card into two absolutely-positioned sibling faces inside
+ * a chrome-less wrapper, so each face composes a class directly and nothing nests. The
+ * constraint is gone rather than merely tolerated — the stale-exemption guard below is
+ * what surfaced that, exactly as intended.
  */
-const PRIMITIVE_ESCAPES: Record<string, string> = {
-  'components/GameCard.tsx':
-    'Front face nests inside the card\'s own .panel — composing .panel-strong would ' +
-    'double the border and shadow. Needs the fill only, which no class exposes alone.',
-};
+const PRIMITIVE_ESCAPES: Record<string, string> = {};
 
 describe('surface composition coverage', () => {
   it('no unlisted bg-surface-raised anywhere under app/src', () => {

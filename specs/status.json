@@ -92,6 +92,15 @@
       "status": "done"
     },
     {
+      "id": "01.5",
+      "title": "Card faces & flip",
+      "phase": "01-core",
+      "depends_on": [
+        "01.3"
+      ],
+      "status": "done"
+    },
+    {
       "id": "02.1",
       "title": "Presence & progress",
       "phase": "02-multiplayer",

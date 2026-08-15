@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { sortTopCard } from './deck';
 
 // Every value/description string in the demo deck (app/src/routes/Sort.tsx) —
 // none of these may ever appear in a network frame before reveal (02.2).
@@ -41,7 +42,7 @@ test('sorting a full round emits no card data over the network (invariant 1)', a
 
   for (let i = 0; i < 12; i++) {
     const remainingBefore = 12 - i;
-    await page.getByRole('button', { name: /^Keep / }).click();
+    await sortTopCard(page, 'keep');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
     } else {

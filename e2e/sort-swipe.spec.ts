@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { turnOverIfFaceDown } from './deck';
 
 // Playwright has no multi-touch drag gesture API beyond simple taps, so a
 // touch-drag is simulated with the pointer primitives (mouse down/move/up) —
@@ -19,6 +20,7 @@ async function dragCard(page: import('@playwright/test').Page, deltaX: number) {
 test('swiping right past threshold commits a keep', async ({ page }) => {
   await page.goto('/sort');
   await expect(page.getByText('12 left')).toBeVisible();
+  await turnOverIfFaceDown(page); // 01.5: drag is inert while face-down
   const box = (await page.getByTestId('swipe-card-drag').boundingBox())!;
   await dragCard(page, box.width);
   await expect(page.getByText('11 left')).toBeVisible({ timeout: 3000 });
@@ -27,6 +29,7 @@ test('swiping right past threshold commits a keep', async ({ page }) => {
 test('swiping left past threshold commits a discard', async ({ page }) => {
   await page.goto('/sort');
   await expect(page.getByText('12 left')).toBeVisible();
+  await turnOverIfFaceDown(page); // 01.5: drag is inert while face-down
   const box = (await page.getByTestId('swipe-card-drag').boundingBox())!;
   await dragCard(page, -box.width);
   await expect(page.getByText('11 left')).toBeVisible({ timeout: 3000 });

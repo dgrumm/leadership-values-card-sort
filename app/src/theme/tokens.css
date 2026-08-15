@@ -28,6 +28,15 @@
   --radius-control: 0.5rem;
   --radius-sheet: 1.25rem;
 
+  /*
+   * 3D depth for the card flip (01.5). Applied to the wrapper *around* the
+   * rotating face stack, not the rotating element itself. ~3.5x the 16rem card
+   * cap: shallower reads as a fairground spin, deeper flattens the turn into a
+   * horizontal squash. Structural, so it stays here rather than moving into a
+   * pack: a pack changes how the app looks, not how it is measured.
+   */
+  --card-perspective: 56rem;
+
   /* Z-index scale (--z-index-* is Tailwind v4's namespace for the `z-*` utilities) */
   --z-index-base: 0;
   --z-index-card: 10;
@@ -147,6 +156,21 @@
 
   .panel-strong {
     background-color: var(--panel-bg-strong);
+  }
+
+  /*
+   * One face in the card's two-face flip stack (01.5). Structure only — no fill,
+   * no chrome: the face composes `.panel` / `.panel-strong` for that, so the
+   * surface treatment stays pack-supplied like every other panel (00.6).
+   *
+   * `backface-visibility` is what makes the flip land the face swap at the 90°
+   * midpoint instead of at flip start.
+   */
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-card);
+    backface-visibility: hidden;
   }
 
   /*
