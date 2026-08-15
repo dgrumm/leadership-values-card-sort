@@ -1,5 +1,7 @@
-import { validateConfig, type GameConfig } from '@values-cards/shared';
-import { DeckPicker } from './deck-picker';
+import { useState } from 'react';
+import { validateConfig, type Deck, type GameConfig } from '@values-cards/shared';
+import { BUNDLED_DECKS, DeckPicker } from './deck-picker';
+import { CustomDeckPanel } from './custom-deck-panel';
 import { RoundEditor } from './round-editor';
 
 export interface DesignerProps {
@@ -25,6 +27,19 @@ export function Designer({
   const result = validateConfig(config);
   const errors = result.ok ? [] : result.errors;
 
+  // A "custom" deck is anything that isn't one of the bundled decks by name. Tracking
+  // the last bundled deck picked (defaulting to the config's deck if it's already
+  // bundled, else the first bundled deck) is what "remove custom deck" reverts to.
+  const isCustomDeck = !BUNDLED_DECKS.some((deck) => deck.name === config.deck.name);
+  const [lastBundledDeck, setLastBundledDeck] = useState<Deck>(
+    () => BUNDLED_DECKS.find((deck) => deck.name === config.deck.name) ?? BUNDLED_DECKS[0]!,
+  );
+
+  function handleBundledSelect(deck: Deck) {
+    setLastBundledDeck(deck);
+    onDeckChange(deck);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <label className="flex flex-col gap-1 text-sm font-semibold" htmlFor="game-title">
@@ -38,7 +53,15 @@ export function Designer({
         />
       </label>
 
-      <DeckPicker selected={config.deck} onSelect={onDeckChange} disabled={disabled} />
+      <DeckPicker selected={config.deck} onSelect={handleBundledSelect} disabled={disabled} />
+
+      <CustomDeckPanel
+        config={config}
+        activeCustomDeck={isCustomDeck ? config.deck : null}
+        onUse={onDeckChange}
+        onRemove={() => onDeckChange(lastBundledDeck)}
+        disabled={disabled}
+      />
 
       <RoundEditor
         rounds={config.rounds}

@@ -227,6 +227,53 @@ describe('expiry', () => {
   });
 });
 
+describe('POST /api/session rejects a deck that violates DeckSchema (03.2)', () => {
+  // The client validates a pasted/uploaded CSV before offering "Use this deck" (03.2), but
+  // the DO is the one writer (tenet 1) and must re-validate independently — a bypassed or
+  // malicious client must not be able to smuggle an invalid deck into session config.
+  it('400s on a config whose deck has duplicate values, bypassing the browser entirely', async () => {
+    const badConfig = {
+      title: 'Bad deck game',
+      deck: {
+        name: 'Bad deck',
+        cards: [
+          { value: 'Trust', description: 'a' },
+          { value: 'trust', description: 'b' }, // duplicate, case-insensitive
+        ],
+      },
+      rounds: [{ name: 'Final', keep: 1, rank: true }],
+      theme: { variant: 'default' },
+      facilitated: true,
+    };
+
+    const response = await SELF.fetch('http://test/api/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ config: badConfig }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('400s on a config whose deck has 0 cards', async () => {
+    const badConfig = {
+      title: 'Empty deck game',
+      deck: { name: 'Empty', cards: [] },
+      rounds: [{ name: 'Final', keep: 1, rank: true }],
+      theme: { variant: 'default' },
+      facilitated: true,
+    };
+
+    const response = await SELF.fetch('http://test/api/session', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ config: badConfig }),
+    });
+
+    expect(response.status).toBe(400);
+  });
+});
+
 describe('dev state dump route', () => {
   // The e2e privacy suite needs this route to inspect real persisted storage, but it must
   // not exist in production: with no auth beyond a 6-char code it would expose every
