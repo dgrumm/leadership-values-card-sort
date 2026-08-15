@@ -33,11 +33,17 @@ export function parseDeckCsv(csvText: string, deckName: string): ParseDeckCsvRes
   const seen = new Map<string, number>();
   const cards: { value: string; description: string }[] = [];
 
+  let sawFirstRow = false;
+
   data.forEach((fields, index) => {
     const rowNumber = index + 1;
     const isBlank = fields.every((field) => field.trim() === '');
     if (isBlank) return;
-    if (rowNumber === 1 && isHeaderRow(fields)) return;
+    // Header detection keys off the first *non-blank* row, not literally row 1: a CSV
+    // exported with a leading blank line would otherwise ingest its own header as a card.
+    const isFirstRow = !sawFirstRow;
+    sawFirstRow = true;
+    if (isFirstRow && isHeaderRow(fields)) return;
 
     const value = (fields[0] ?? '').trim();
     const description = (fields[1] ?? '').trim();
@@ -58,10 +64,9 @@ export function parseDeckCsv(csvText: string, deckName: string): ParseDeckCsvRes
   });
 
   if (cards.length > MAX_CARDS) {
-    errors.push({
-      row: data.length,
-      message: `Row ${data.length}: ${cards.length} cards exceeds the ${MAX_CARDS}-card maximum`,
-    });
+    // Whole-file condition, so row 0 (the convention used for the no-cards error below)
+    // rather than a row number that points at nothing in particular.
+    errors.push({ row: 0, message: `${cards.length} cards exceeds the ${MAX_CARDS}-card maximum` });
   }
 
   if (cards.length === 0) {

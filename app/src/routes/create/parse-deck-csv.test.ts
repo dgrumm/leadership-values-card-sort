@@ -34,6 +34,14 @@ describe('parseDeckCsv', () => {
     expect(result.deck.cards).toHaveLength(2);
   });
 
+  it('detects a header row that follows a leading blank line', () => {
+    const result = parseDeckCsv('\nValue,Description\nCourage,Acting despite fear', 'My deck');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // Regression: keying header detection off literal row 1 ingested the header as a card.
+    expect(result.deck.cards).toEqual([{ value: 'Courage', description: 'Acting despite fear' }]);
+  });
+
   it('skips blank lines', () => {
     const result = parseDeckCsv('Courage,Acting despite fear\n\nTrust,Confidence in others', 'My deck');
     expect(result.ok).toBe(true);

@@ -90,6 +90,21 @@ describe('CustomDeckPanel', () => {
     expect(screen.getByText('Courage')).toBeDefined();
   });
 
+  it('clears the file input after reading, so re-selecting the same path fires change again', async () => {
+    const user = userEvent.setup();
+    render(<Fixture initialConfig={baseConfig(SMALL_DECK, 2)} />);
+    const input = screen.getByLabelText(/upload a CSV file/) as HTMLInputElement;
+
+    await user.upload(input, new File([VALID_CSV], 'my-values.csv', { type: 'text/csv' }));
+    expect(await screen.findByText('3 cards')).toBeDefined();
+
+    // A real browser fires no change event when the selected path is unchanged, so
+    // "fix my CSV on disk and re-upload it" is silent unless the input is reset.
+    // jsdom fires change regardless, so the reset itself is what's asserted here —
+    // the end-user symptom can't be reproduced in this environment.
+    expect(input.value).toBe('');
+  });
+
   it('using a valid deck calls onUse with the parsed deck', () => {
     render(<Fixture initialConfig={baseConfig(SMALL_DECK, 2)} />);
     fireEvent.change(screen.getByLabelText(/Paste CSV/), { target: { value: VALID_CSV } });

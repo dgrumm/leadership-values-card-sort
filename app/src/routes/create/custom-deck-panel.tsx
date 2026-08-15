@@ -70,7 +70,11 @@ export function CustomDeckPanel({ config, activeCustomDeck, onUse, onRemove, dis
       setText(fileText);
       parse(fileText, defaultName);
     };
+    reader.onerror = () => setErrors([{ row: 0, message: `Could not read ${file.name}` }]);
     reader.readAsText(file);
+    // Clearing the input means re-selecting the SAME path fires change again — the
+    // "fix my CSV on disk and re-upload it" loop is silent otherwise.
+    event.target.value = '';
   }
 
   const keepError = preview ? keepExceedsDeckSize(config, preview) : null;
@@ -132,6 +136,9 @@ export function CustomDeckPanel({ config, activeCustomDeck, onUse, onRemove, dis
           <p className="text-sm text-ink-muted">{preview.cards.length} cards</p>
           <div className="flex flex-wrap gap-2">
             {preview.cards.slice(0, PREVIEW_COUNT).map((card, index) => (
+              // GameCard has one canonical size (00.4) and no size prop, so a thumbnail
+              // is a fixed box that clips a scaled-down card. Both divs are load-bearing:
+              // the scale must sit on the content, not on the box that does the clipping.
               <div key={index} className="h-24 w-16 overflow-hidden">
                 <div className="origin-top-left scale-[0.28]">
                   <GameCard title={card.value} description={card.description} />
