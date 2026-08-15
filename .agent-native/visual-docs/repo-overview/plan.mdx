@@ -1,0 +1,562 @@
+---
+title: "Values Cards 2.0 — Repo Visual Docs"
+brief: "The one-writer session architecture, wire contract, and privacy boundary, anchored to the real source files."
+kind: "plan"
+localOnly: true
+---
+
+# Values Cards 2.0 — Repo Visual Docs
+
+A local, repo-backed visual documentation layer for the v2 rebuild. The MDX lives in
+this repo, comments stay beside it in `comments.json`, and the Plan UI reads it through
+the localhost bridge — nothing is published.
+
+These docs cover the load-bearing surfaces only: the wire contract, the single-writer
+reducer, session state, and the client-side privacy boundary. UI component docs are
+deliberately thin until a component's contract stabilizes.
+
+Manifest: `../../../agent-native.json`
+
+<Callout id="privacy-boundary" tone="decision">
+
+**Tenet 2, privacy by architecture.** Unrevealed card choices never leave the device.
+`createSortStore` holds `queue` / `kept` / `discarded` / `cut` / `ranking` in
+localStorage only; the only card data that ever crosses the wire is a `reveal` intent's
+`snapshot`. The server cannot leak what it never receives — which is why
+`reportProgress` sends *counts* (`sorted`, `kept`) and never card identities.
+
+</Callout>
+
+### Topology
+
+<Diagram id="one-writer-topology" caption="One writer: clients send intents; only the session DO mutates shared state.">
+
+```html
+<div class="diagram-panel" data-rough>
+  <div class="diagram-lane">
+    <div class="diagram-muted lane-label">Participant device — private</div>
+    <div class="diagram-row">
+      <div class="diagram-card">
+        <strong>createSortStore</strong>
+        <div class="diagram-muted">queue · kept · discarded · cut · ranking</div>
+        <div class="diagram-pill">localStorage</div>
+      </div>
+      <div class="diagram-card">
+        <strong>useSession</strong>
+        <div class="diagram-muted">1 WebSocket · backoff · offline queue</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-boundary">intents up · state + patches down</div>
+
+  <div class="diagram-lane">
+    <div class="diagram-muted lane-label">Cloudflare — shared state</div>
+    <div class="diagram-row">
+      <div class="diagram-node">Worker routes<div class="diagram-muted">party/src/index.ts</div></div>
+      <div class="diagram-node">SessionServer DO<div class="diagram-muted">transport · auth · persistence</div></div>
+      <div class="diagram-box">applyIntent<div class="diagram-muted">pure reducer · shared/</div></div>
+    </div>
+  </div>
+</div>
+```
+
+```css
+.diagram-panel { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
+.diagram-lane { display: flex; flex-direction: column; gap: 8px; }
+.lane-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.diagram-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.diagram-row > * { flex: 1 1 180px; }
+.diagram-boundary {
+  border-top: 1px dashed var(--wf-border);
+  border-bottom: 1px dashed var(--wf-border);
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--wf-muted-fg);
+  text-align: center;
+}
+.diagram-pill { margin-top: 6px; display: inline-block; font-size: 11px; }
+```
+
+</Diagram>
+
+### Worker routes
+
+Three routes total. Everything gameplay-related rides the WebSocket; the HTTP surface only
+mints sessions.
+
+<Endpoint id="post-session" method="POST" path="/api/session" summary="Create a session" params={[
+  {
+    "name": "config",
+    "in": "body",
+    "type": "GameConfig",
+    "description": "Optional. Omitted means CLASSIC_TEMPLATE."
+  }
+]} request={{
+  "contentType": "application/json",
+  "example": "{ \"config\": { \"title\": \"Leadership Values\", \"rounds\": [] } }"
+}} responses={[
+  {
+    "status": "200",
+    "description": "Created",
+    "example": "{ \"code\": \"K3P9WQ\", \"creatorToken\": \"<hmac>\" }"
+  },
+  {
+    "status": "400",
+    "description": "invalid config — GameConfigSchema rejected the body"
+  }
+]}>
+
+Retries up to `MAX_CODE_ATTEMPTS` (5) random 6-char codes, calling the DO's
+`/internal/init` until one is unclaimed. `creatorToken` is an HMAC over the code and is
+the *only* source of the facilitator role.
+
+</Endpoint>
+
+<Endpoint id="ws-session" method="GET" path="/api/session/{code}/ws" summary="Session WebSocket (upgrade)" auth="participantToken in each intent envelope; creatorToken on join" responses={[
+  {
+    "status": "101",
+    "description": "Switching protocols"
+  },
+  {
+    "status": "1008",
+    "description": "Closed — not_found (unknown/expired code) or expired (24h alarm fired)"
+  }
+]}>
+
+One socket per participant. Inbound frames are intents; outbound are `welcome`,
+`state`, `patch`, `nudge`, and `error`. The DO runs with `hibernate: true`.
+
+</Endpoint>
+
+<Endpoint id="dump-session" method="GET" path="/api/session/{code}/dump" summary="Read-only state dump (dev/e2e only)" deprecated={true} responses={[
+  {
+    "status": "200",
+    "description": "Full persisted SessionState"
+  },
+  {
+    "status": "404",
+    "description": "Not found — route does not exist unless DEV_STATE_DUMP === 'true'"
+  }
+]}>
+
+Gated on the `DEV_STATE_DUMP` binding, which only `wrangler dev` and the e2e harness set.
+It exists so the privacy E2E can assert invariant 1 against the DO's *actual persisted
+storage* rather than the events it happened to broadcast. Unauthenticated, so it must
+stay unset in production — a 6-char code would otherwise expose every participant UUID,
+name, role, and progress.
+
+</Endpoint>
+
+### Session state
+
+`SessionState` is what the DO persists under the `state` key and what a reconnecting
+client receives whole (tenet 6). Records are keyed by opaque participant UUID; display
+names are labels only (tenet 3).
+
+<DataModel
+  id="session-state-model"
+  entities={[
+    {
+      id: "SessionState",
+      name: "SessionState",
+      fields: [
+        { name: "code", type: "string /^[A-Z0-9]{6}$/", pk: true },
+        { name: "config", type: "GameConfig", fk: "GameConfig.title" },
+        { name: "phase", type: "lobby | active | concluded" },
+        { name: "participants", type: "Record<uuid, Participant>", fk: "Participant.id" },
+        { name: "reveals", type: "Record<uuid, Record<round, RevealSnapshot>>", fk: "RevealSnapshot.id" },
+        { name: "spotlight", type: "uuid | null", nullable: true },
+        { name: "gate", type: "{ openRound } | null", nullable: true },
+        { name: "processedIntents", type: "Record<uuid, string[]>" },
+        { name: "processedJoins", type: "Record<uuid, uuid>" },
+      ],
+    },
+    {
+      id: "Participant",
+      name: "Participant",
+      fields: [
+        { name: "id", type: "uuid (record key)", pk: true },
+        { name: "name", type: "string (label, never a key)" },
+        { name: "avatarHue", type: "number 0-359" },
+        { name: "role", type: "facilitator | participant" },
+        { name: "connected", type: "boolean" },
+        { name: "progress", type: "Progress", fk: "Progress.id" },
+      ],
+    },
+    {
+      id: "Progress",
+      name: "Progress",
+      fields: [
+        { name: "id", type: "inline", pk: true },
+        { name: "round", type: "int >= 0" },
+        { name: "sorted", type: "int >= 0" },
+        { name: "kept", type: "int >= 0" },
+        { name: "done", type: "boolean" },
+      ],
+    },
+    {
+      id: "RevealSnapshot",
+      name: "RevealSnapshot",
+      fields: [
+        { name: "id", type: "keyed by (participantId, round)", pk: true },
+        { name: "cards", type: "Card[]" },
+        { name: "ranked", type: "boolean" },
+        { name: "revealedAt", type: "number" },
+      ],
+    },
+    {
+      id: "GameConfig",
+      name: "GameConfig",
+      fields: [
+        { name: "title", type: "string", pk: true },
+        { name: "deck", type: "Deck" },
+        { name: "rounds", type: "RoundConfig[] (1-6)", fk: "RoundConfig.id" },
+        { name: "theme", type: "{ variant }" },
+        { name: "facilitated", type: "boolean" },
+      ],
+    },
+    {
+      id: "RoundConfig",
+      name: "RoundConfig",
+      fields: [
+        { name: "id", type: "array index", pk: true },
+        { name: "name", type: "string" },
+        { name: "keep", type: "int > 0 | 'any'" },
+        { name: "rank", type: "boolean" },
+      ],
+    },
+  ]}
+  relations={[
+    { from: "SessionState", to: "Participant", kind: "1-n" },
+    { from: "Participant", to: "Progress", kind: "1-n" },
+    { from: "SessionState", to: "RevealSnapshot", kind: "1-n" },
+    { from: "SessionState", to: "GameConfig", kind: "1-n" },
+    { from: "GameConfig", to: "RoundConfig", kind: "1-n" },
+  ]}
+/>
+
+`GameConfigSchema` enforces cross-round rules its per-round schema cannot see, each with a
+stable `params.code`: `INVALID_ROUND_COUNT` (1-6 rounds), `ANY_OUTSIDE_FIRST_ROUND`,
+`RANK_OUTSIDE_FINAL_ROUND`, `KEEP_EXCEEDS_DECK_SIZE`, and
+`KEEP_NOT_STRICTLY_DECREASING`. That last one is what makes 40 → 8 → 3 valid and
+40 → 8 → 8 not.
+
+### Who may send what
+
+Authority lives in the reducer, not in disabled client controls — the DO is the one writer,
+so a hand-crafted socket frame hits the same checks.
+
+<Table
+  id="intent-authority"
+  density="compact"
+  columns={["Intent", "Who may send", "Phase", "Rejections"]}
+  rows={[
+    ["join", "anyone with the code; facilitator iff verified creatorToken", "not concluded", "SESSION_CONCLUDED"],
+    ["rejoin", "known participant", "any", "UNKNOWN_PARTICIPANT"],
+    ["updateConfig", "facilitator", "lobby only", "FORBIDDEN, LOCKED"],
+    ["startGame", "facilitator if config.facilitated, else any participant", "lobby only", "FORBIDDEN, LOCKED"],
+    ["reportProgress", "any participant (counts only)", "any", "UNKNOWN_PARTICIPANT"],
+    ["reveal", "any participant, own round, gate permitting", "any", "INVALID_ROUND, GATE_CLOSED, ALREADY_REVEALED, KEEP_COUNT_MISMATCH, RANK_MISMATCH, UNKNOWN_CARD"],
+    ["unreveal", "any participant, own reveals", "any", "UNKNOWN_PARTICIPANT"],
+    ["nudge", "facilitator", "any", "FORBIDDEN"],
+    ["setGate", "facilitator", "any", "FORBIDDEN"],
+    ["setSpotlight", "facilitator, self-spotlight, or owner releasing with null", "not concluded", "SESSION_CONCLUDED, FORBIDDEN"],
+    ["conclude", "facilitator", "any", "FORBIDDEN"],
+  ]}
+/>
+
+### Load-bearing implementation
+
+<TabsBlock
+  id="implementation-tabs"
+  orientation="vertical"
+  tabs={[
+    {
+      id: "tab-idempotency",
+      label: "apply-intent.ts — idempotency",
+      blocks: [
+        {
+          id: "tab-idempotency-note",
+          type: "rich-text",
+          data: {
+            markdown: "Invariant 5: a replayed intent is a no-op. `join` needs its own dedup path because the reducer *mints* the participantId, so there is no key to look up yet — a retried ack must never create a second facilitator.",
+          },
+        },
+        {
+          id: "tab-idempotency-code",
+          type: "annotated-code",
+          data: {
+            filename: "shared/src/engine/apply-intent.ts",
+            language: "ts",
+            code: "export function applyIntent(state, intent, deps = defaultDeps) {\n  if (intent.type !== 'join' && alreadyProcessed(state, intent.participantId, intent.intentId)) {\n    return ok(state, []);\n  }\n\n  switch (intent.type) {\n    case 'join': {\n      if (intent.intentId in state.processedJoins) {\n        return ok(state, []);\n      }\n      const participantId = deps.newParticipantId();\n      const participant = {\n        role: intent.isCreator === true ? 'facilitator' : 'participant',\n        // ...\n      };\n    }\n  }\n}",
+            annotations: [
+              {
+                lines: "2-4",
+                label: "Replay = current state, no events",
+                note: "Returns the same state object, so the DO's `changed` check skips both the storage write and the broadcast.",
+              },
+              {
+                lines: "8-10",
+                label: "join deduped separately",
+                note: "`processedJoins` maps intentId to the minted participantId, bounded by the same PROCESSED_INTENTS_CAP (64) LRU.",
+              },
+              {
+                lines: "13",
+                label: "Role from HMAC, not join order",
+                note: "Whoever created the session owns it even if a participant wins the race to the first join.",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      id: "tab-reveal",
+      label: "apply-intent.ts — reveal",
+      blocks: [
+        {
+          id: "tab-reveal-note",
+          type: "rich-text",
+          data: {
+            markdown: "Invariants 2 and 3 in one place: reveals are write-once, and keep-count is enforced server-side rather than trusted from the client.",
+          },
+        },
+        {
+          id: "tab-reveal-code",
+          type: "annotated-code",
+          data: {
+            filename: "shared/src/engine/apply-intent.ts",
+            language: "ts",
+            code: "if (state.gate && intent.round > state.gate.openRound) {\n  return reject('GATE_CLOSED', 'this round has not been opened by the facilitator yet');\n}\nif (existingForParticipant[intent.round]) {\n  return reject('ALREADY_REVEALED', 'this round has already been revealed (write-once)');\n}\nconst expectedCount = roundCfg.keep === 'any' ? undefined : roundCfg.keep;\nif (expectedCount !== undefined && intent.snapshot.cards.length !== expectedCount) {\n  return reject('KEEP_COUNT_MISMATCH', `expected exactly ${expectedCount} cards`);\n}\nif (intent.snapshot.ranked !== roundCfg.rank) {\n  return reject('RANK_MISMATCH', `this round's ranked flag must be ${roundCfg.rank}`);\n}\nconst deckValues = new Set(state.config.deck.cards.map((card) => card.value));\nif (!intent.snapshot.cards.every((card) => deckValues.has(card.value))) {\n  return reject('UNKNOWN_CARD', 'revealed cards must exist in this game\\'s deck');\n}",
+            annotations: [
+              {
+                lines: "4-6",
+                label: "Write-once",
+                note: "Invariant 2. Changing a reveal requires `unreveal` (which deletes the round key) and then a fresh reveal — never an in-place edit.",
+              },
+              {
+                lines: "7-9",
+                label: "Exact keep-count",
+                note: "Invariant 3. `keep: 'any'` only relaxes to an upper bound of deck size, checked immediately below in the source.",
+              },
+              {
+                lines: "13-16",
+                label: "Cards must exist in this deck",
+                note: "Blocks a client inventing card values that were never in the configured deck.",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      id: "tab-do-auth",
+      label: "party/src/session.ts — auth",
+      blocks: [
+        {
+          id: "tab-do-auth-note",
+          type: "rich-text",
+          data: {
+            markdown: "The DO adds only what the pure reducer cannot own: transport, auth, persistence, and the 24h expiry alarm. Auth fields are stripped before parsing because `IntentSchema` is a `strictObject`.",
+          },
+        },
+        {
+          id: "tab-do-auth-code",
+          type: "annotated-code",
+          data: {
+            filename: "party/src/session.ts",
+            language: "ts",
+            code: "const rest = { ...record };\ndelete rest.token;\ndelete rest.creatorToken;\ndelete rest.isCreator;\n\nif (rest.type === 'join') {\n  const isCreator =\n    typeof creatorToken === 'string' &&\n    (await verifyCreatorToken(this.env.SESSION_TOKEN_SECRET, this.session.code, creatorToken));\n  if (isCreator) intentInput = { ...rest, isCreator: true };\n} else {\n  const participantId = await verifyParticipantToken(this.env.SESSION_TOKEN_SECRET, this.session.code, token);\n  if (!participantId) {\n    this.sendError(connection, 'auth', 'invalid participant token');\n    return;\n  }\n  intentInput = { ...rest, participantId };\n}",
+            annotations: [
+              {
+                lines: "4",
+                label: "isCreator is unspoofable",
+                note: "Any client-supplied `isCreator` is discarded here and only ever re-set from a verified HMAC below.",
+              },
+              {
+                lines: "12-17",
+                label: "participantId comes from the token",
+                note: "Never from the payload — so a client cannot act as another participant even knowing their UUID.",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      id: "tab-resync",
+      label: "party/src/session.ts — resync",
+      blocks: [
+        {
+          id: "tab-resync-note",
+          type: "rich-text",
+          data: {
+            markdown: "Tenet 6 is a per-socket concern, not a per-state-change one. This is the subtle interaction between idempotency and reconnect: a retried `rejoin` mutates nothing, so a broadcast-only path would leave the reconnecting client hanging forever.",
+          },
+        },
+        {
+          id: "tab-resync-code",
+          type: "annotated-code",
+          data: {
+            filename: "party/src/session.ts",
+            language: "ts",
+            code: "} else if (intent.type === 'rejoin') {\n  connection.setState({ participantId: intent.participantId });\n  connection.send(JSON.stringify({ type: 'state', state: this.session }));\n}\n\nif (changed) {\n  const without = intent.type === 'rejoin' ? [connection.id] : [];\n  for (const event of result.events) {\n    this.broadcast(JSON.stringify(event), without);\n  }\n}",
+            annotations: [
+              {
+                lines: "3",
+                label: "Snapshot regardless of `changed`",
+                note: "Sent directly to this socket even when the reducer no-oped, which is exactly what an idempotent reconnect retry looks like.",
+              },
+              {
+                lines: "7",
+                label: "Exclude the rejoiner from the broadcast",
+                note: "It already has the full state; excluding it avoids sending the same snapshot twice.",
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      id: "tab-sort-store",
+      label: "app/src/stores/createSortStore.ts",
+      blocks: [
+        {
+          id: "tab-sort-store-note",
+          type: "rich-text",
+          data: {
+            markdown: "Phase is *derived* from state plus config, so a refresh cannot desync it (invariant 4). There is no phase field to go stale, and no per-round special-casing — the same code drives 40 → 8 → 3 or any other valid config.",
+          },
+        },
+        {
+          id: "tab-sort-store-code",
+          type: "annotated-code",
+          data: {
+            filename: "app/src/stores/createSortStore.ts",
+            language: "ts",
+            code: "export function getPhase(state, config) {\n  const roundCfg = config.rounds[state.round - 1];\n  if (!roundCfg) return 'result';\n  const status = canFinishRound(state, roundCfg);\n  if ('incomplete' in status) return 'sort';\n  if ('needTrim' in status) return 'trim';\n  const isLastRound = state.round >= config.rounds.length;\n  if (!isLastRound) return 'round-complete';\n  if (roundCfg.rank && !state.rankConfirmed) return 'rank';\n  return 'result';\n}\n\nconfirmTrim: () => {\n  const roundCfg = config.rounds[state.round - 1];\n  if (!roundCfg || roundCfg.keep === 'any') return;\n  if (state.kept.length - state.cut.length > roundCfg.keep) return;\n  // ...move cut into discarded\n},",
+            annotations: [
+              {
+                lines: "1-11",
+                label: "Derived phase",
+                note: "Config-driven (tenet 4). `canFinishRound` in shared/engine/round.ts is the single source of truth for completion.",
+              },
+              {
+                lines: "15-16",
+                label: "Invariant 3, client half",
+                note: "Refuses to move cards into `discarded` unless cutting actually clears the keep-count. The server re-checks on reveal regardless.",
+              },
+              {
+                lines: "0",
+                label: "Persistence key",
+                note: "`vc:{sessionCode}:{participantId}:sort` — one store per session/participant pair, so two sessions in one browser never collide.",
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ]}
+/>
+
+### Client connection
+
+`useSession` owns one WebSocket per participant, the reconnect-with-backoff loop, and a
+FIFO offline intent queue that flushes when the socket returns to `live`. Two details
+that are easy to regress:
+
+- **Epoch counter, not a boolean.** A discarded socket's `close` event is asynchronous and
+  can land after the next effect run has already reset a shared flag. `epochRef` lets a
+  superseded run recognize its own close and skip the reconnect — this is what keeps React
+  StrictMode's dev mount/cleanup/remount from opening a second socket.
+- **Malformed frames are dropped, never thrown.** `parseInboundMessage` tries
+  `WelcomeSchema` first (transport/auth, outside `EventSchema`), then `EventSchema`, and
+  returns `null` otherwise, so a hostile or buggy peer cannot crash the app.
+
+### UI surfaces
+
+Thin on purpose. These are visualized so reviewers can comment on them, but they have no
+durable contract worth diagramming yet — the card-face/flip work is still in flight.
+
+<FileTree
+  id="ui-surfaces"
+  title="Visualized UI targets"
+  entries={[
+    { path: "app/src/routes/Sort.tsx", note: "Flow host: wires the derived phase to the engine-ui surface." },
+    { path: "app/src/engine-ui/SortRound.tsx", note: "Round shell." },
+    { path: "app/src/engine-ui/CardStack.tsx", note: "Queue presentation." },
+    { path: "app/src/engine-ui/SwipeCard.tsx", note: "Pointer + keyboard keep/discard. A11y is a gate." },
+    { path: "app/src/engine-ui/TrimGrid.tsx", note: "Cut-to-keep-count surface (confirmTrim)." },
+    { path: "app/src/engine-ui/RankBoard.tsx", note: "Final-round ordering (confirmRank)." },
+    { path: "app/src/engine-ui/KeptTray.tsx", note: "Kept cards; demote path." },
+    { path: "app/src/engine-ui/ProgressRail.tsx", note: "Counts only — never card identities." },
+    { path: "app/src/engine-ui/Plaque.tsx", note: "Result plaque; layout in plaque-layout.ts." },
+    { path: "app/src/theme/tokens.css", note: "@theme tokens. Tenet 5: CI fails raw palette classes, hex literals, inline z-index." },
+    { path: "app/src/theme/motion.tsx", note: "Shared motion wrapper; honors prefers-reduced-motion." },
+  ]}
+/>
+
+### Review and agent handoff
+
+Comment on any section, diagram, spec, or table in the local Plan UI. Agent-targeted
+comments are the queue for a coding agent to change the repo and then patch these MDX
+files, so the visual docs and the executable code stay in sync.
+
+Freshness policy from the manifest: the three `shared/src/schemas/*` targets are
+`required-on-pr` — a PR that changes the wire contract should update the data model and
+authority table above. Everything else is `seed`.
+
+### Open Questions
+
+<QuestionForm
+  id="repo-docs-open-questions"
+  questions={[
+    {
+      id: "doc-scope",
+      title: "Should these docs stay contract-only, or grow to cover UI components?",
+      subtitle: "Affects how much upkeep each PR carries.",
+      mode: "single",
+      options: [
+        {
+          id: "contract-only",
+          label: "Contract-only",
+          detail: "Keep wire contract, reducer, and state. UI stays a file tree until a component's contract stabilizes.",
+          recommended: true,
+        },
+        {
+          id: "add-wireframes",
+          label: "Add UI wireframes",
+          detail: "Add per-state wireframes for the sort flow. Higher value for design review, more churn while 01.5 is in flight.",
+        },
+      ],
+      required: true,
+    },
+    {
+      id: "commit-docs",
+      title: "Commit `.agent-native/` and `agent-native.json` to the repo?",
+      mode: "single",
+      options: [
+        {
+          id: "commit",
+          label: "Commit both",
+          detail: "Docs are source-controlled and reviewable in PRs. `.plan-url` must stay ignored — it carries a bridge token.",
+          recommended: true,
+        },
+        {
+          id: "ignore-all",
+          label: "Ignore the whole directory",
+          detail: "Keeps the tree clean but the docs become per-machine scratch.",
+        },
+      ],
+      required: true,
+    },
+    {
+      id: "freshness-enforcement",
+      title: "Should `required-on-pr` be enforced by CI or left as a convention?",
+      mode: "freeform",
+      placeholder: "e.g. add a gate step that fails when shared/src/schemas changes without a plan.mdx change...",
+    },
+  ]}
+  submitLabel="Send answers"
+/>

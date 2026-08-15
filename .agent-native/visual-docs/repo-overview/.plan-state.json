@@ -1,0 +1,21 @@
+{
+  "localOnly": true,
+  "kind": "plan",
+  "visualDocs": {
+    "manifest": "../../../agent-native.json",
+    "targets": [
+      "shared-src-schemas-messages-ts",
+      "shared-src-schemas-config-ts",
+      "shared-src-schemas-session-ts",
+      "shared-src-engine-apply-intent-ts",
+      "party-src-session-ts",
+      "party-src-index-ts",
+      "app-src-session-usesession-ts",
+      "app-src-stores-createsortstore-ts",
+      "app-src-routes-sort-tsx",
+      "app-src-engine-ui",
+      "app-src-theme"
+    ]
+  },
+  "createdAt": "2026-08-15T16:33:44.477Z"
+}

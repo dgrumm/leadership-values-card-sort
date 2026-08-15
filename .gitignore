@@ -29,3 +29,6 @@ skills-lock.json
 
 # WebKit compositing check output (scripts/webkit-flip-check.mjs)
 .webkit-check/
+
+# Agent-Native visual docs: local bridge token, never commit
+.agent-native/**/.plan-url

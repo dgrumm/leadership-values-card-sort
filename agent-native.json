@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "apps": {
+    "visualize-repo": {
+      "mode": "local-files",
+      "root": ".agent-native/visual-docs",
+      "entry": ".agent-native/visual-docs/repo-overview",
+      "targets": [
+        {
+          "id": "shared-src-schemas-messages-ts",
+          "name": "Wire Messages",
+          "kind": "model",
+          "include": [
+            "shared/src/schemas/messages.ts"
+          ],
+          "blocks": [
+            "data-model",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "required-on-pr"
+        },
+        {
+          "id": "shared-src-schemas-config-ts",
+          "name": "Game Config",
+          "kind": "model",
+          "include": [
+            "shared/src/schemas/config.ts"
+          ],
+          "blocks": [
+            "data-model",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "required-on-pr"
+        },
+        {
+          "id": "shared-src-schemas-session-ts",
+          "name": "Session State",
+          "kind": "model",
+          "include": [
+            "shared/src/schemas/session.ts"
+          ],
+          "blocks": [
+            "data-model",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "required-on-pr"
+        },
+        {
+          "id": "shared-src-engine-apply-intent-ts",
+          "name": "Reducer (applyIntent)",
+          "kind": "area",
+          "include": [
+            "shared/src/engine/apply-intent.ts"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "party-src-session-ts",
+          "name": "Session DO",
+          "kind": "area",
+          "include": [
+            "party/src/session.ts"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "party-src-index-ts",
+          "name": "Worker Routes",
+          "kind": "area",
+          "include": [
+            "party/src/index.ts"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "app-src-session-usesession-ts",
+          "name": "Session Client",
+          "kind": "area",
+          "include": [
+            "app/src/session/useSession.ts"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "app-src-stores-createsortstore-ts",
+          "name": "Sort Store (private)",
+          "kind": "area",
+          "include": [
+            "app/src/stores/createSortStore.ts"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "app-src-routes-sort-tsx",
+          "name": "Sort Flow",
+          "kind": "flow",
+          "include": [
+            "app/src/routes/Sort.tsx"
+          ],
+          "blocks": [
+            "wireframe",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "app-src-engine-ui",
+          "name": "Engine UI",
+          "kind": "area",
+          "include": [
+            "app/src/engine-ui"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        },
+        {
+          "id": "app-src-theme",
+          "name": "Theme Tokens",
+          "kind": "area",
+          "include": [
+            "app/src/theme"
+          ],
+          "blocks": [
+            "file-tree",
+            "diagram",
+            "annotated-code"
+          ],
+          "policy": "seed"
+        }
+      ],
+      "hide": [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.agent-native/**"
+      ]
+    }
+  }
+}
