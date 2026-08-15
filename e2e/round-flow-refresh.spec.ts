@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import { turnOverIfFaceDown } from './deck';
 
 async function cardNameOf(item: Locator): Promise<string> {
   const label = await item.locator('p').first().textContent();
@@ -48,6 +49,8 @@ async function reorderFirstItemDown(page: Page, items: Locator): Promise<string[
 async function resolveQueue(page: Page, count: number, keep: (index: number) => boolean) {
   for (let i = 0; i < count; i++) {
     const remainingBefore = count - i;
+    // 01.5: each round opens face-down, so turn the top card over first.
+    await turnOverIfFaceDown(page);
     await page.getByRole('button', { name: keep(i) ? /^Keep / : /^Discard / }).click();
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { sortTopCard } from './deck';
 
 interface PersistedSortState {
   kept: string[];
@@ -21,8 +22,7 @@ test('refresh mid-round preserves exact sort progress (invariant 4)', async ({ p
 
   for (let i = 0; i < 7; i++) {
     const remainingBefore = 12 - i;
-    const namePattern = i % 2 === 0 ? /^Keep / : /^Discard /;
-    await page.getByRole('button', { name: namePattern }).click();
+    await sortTopCard(page, i % 2 === 0 ? 'keep' : 'discard');
     await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
   }
 

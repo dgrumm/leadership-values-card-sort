@@ -31,4 +31,15 @@ export default tseslint.config(
       globals: globals.browser,
     },
   },
+  {
+    // Playwright driver scripts are Node on the outside and browser on the
+    // inside: the callbacks handed to `page.evaluate()` are serialized and run in
+    // the page, where `document`/`getComputedStyle` are real. Both global sets
+    // apply, same as the DOM lib `tsconfig.scripts.json` already declares for
+    // `e2e/**`.
+    files: ['scripts/webkit-flip-check.mjs'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
 );

@@ -1,12 +1,13 @@
 import { expect, test } from '@playwright/test';
+import { sortTopCard } from './deck';
 
 test('kept tray expands, shows kept cards, and demotes one back to the queue', async ({ page }) => {
   await page.goto('/sort');
   await expect(page.getByText('12 left')).toBeVisible();
 
-  await page.getByRole('button', { name: /^Keep / }).click();
+  await sortTopCard(page, 'keep');
   await expect(page.getByRole('button', { name: 'Kept cards: 1 / 8 kept' })).toBeVisible({ timeout: 3000 });
-  await page.getByRole('button', { name: /^Keep / }).click();
+  await sortTopCard(page, 'keep');
   await expect(page.getByRole('button', { name: 'Kept cards: 2 / 8 kept' })).toBeVisible({ timeout: 3000 });
 
   await page.getByRole('button', { name: 'Kept cards: 2 / 8 kept' }).click();

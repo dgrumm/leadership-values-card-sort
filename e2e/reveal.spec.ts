@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { turnOverIfFaceDown } from './deck';
 
 interface RevealTestState {
   participants: Record<string, { name: string }>;
@@ -50,6 +51,9 @@ async function resolveQueue(page: Page, count: number, keep: (index: number) => 
   for (let i = 0; i < count; i++) {
     const remainingBefore = count - i;
     const wantKeep = keep(i);
+    // 01.5: the commit controls only exist once the card is face-up, and this
+    // reads the card's value off the button's label — so turn it over first.
+    await turnOverIfFaceDown(page);
     const button = page.getByRole('button', { name: wantKeep ? /^Keep / : /^Discard / });
     const label = await button.getAttribute('aria-label');
     if (wantKeep && label) kept.push(label.replace(/^Keep /, ''));

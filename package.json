@@ -17,6 +17,7 @@
     "typecheck": "pnpm -r run typecheck && tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint .",
     "token:lint": "node scripts/token-lint.mjs",
+    "check:webkit": "node scripts/webkit-flip-check.mjs",
     "spec:status": "node scripts/spec-status.mjs",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",

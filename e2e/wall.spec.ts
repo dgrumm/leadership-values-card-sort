@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { sortTopCard } from './deck';
 
 /** One round, unranked, keep-all-4 — the wall itself is the thing under test, not
  *  round mechanics (already covered by reveal.spec.ts). */
@@ -34,7 +35,7 @@ async function joinAs(page: Page, code: string, name: string, creatorToken?: str
 async function revealAll(page: Page) {
   for (let i = 0; i < 4; i++) {
     const remainingBefore = 4 - i;
-    await page.getByRole('button', { name: /^Keep /, exact: false }).first().click();
+    await sortTopCard(page, 'keep');
     if (remainingBefore - 1 > 0) {
       // Wait for the sort store's next card to actually mount before the next click —
       // firing all four clicks back to back can outrun the re-render (see reveal.spec.ts's
