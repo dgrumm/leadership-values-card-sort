@@ -98,7 +98,7 @@
       "depends_on": [
         "01.3"
       ],
-      "status": "in-progress"
+      "status": "done"
     },
     {
       "id": "02.1",
