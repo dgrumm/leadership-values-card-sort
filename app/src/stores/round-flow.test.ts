@@ -8,6 +8,7 @@ function twoRoundConfig(): GameConfig {
     deck: {
       name: 'Deck',
       cards: Array.from({ length: 5 }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })),
+      source: 'bundled',
     },
     rounds: [
       { name: 'Round 1', keep: 3, rank: false },

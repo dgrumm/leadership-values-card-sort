@@ -6,7 +6,7 @@ import { RoundEditor } from './round-editor';
 
 afterEach(cleanup);
 
-const DECK = { name: 'Test Deck', cards: Array.from({ length: 10 }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })) };
+const DECK = { name: 'Test Deck', cards: Array.from({ length: 10 }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })), source: 'bundled' as const };
 
 function baseConfig(rounds: RoundConfig[]): GameConfig {
   return { title: 'Test', deck: DECK, rounds, theme: { variant: 'default' }, facilitated: true };

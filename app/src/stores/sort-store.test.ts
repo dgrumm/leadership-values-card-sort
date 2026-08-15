@@ -8,6 +8,7 @@ function deckConfig(count: number): GameConfig {
     deck: {
       name: 'Deck',
       cards: Array.from({ length: count }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })),
+      source: 'bundled',
     },
     rounds: [{ name: 'Round 1', keep: 3, rank: false }],
     theme: { variant: 'default' },

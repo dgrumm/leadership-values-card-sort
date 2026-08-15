@@ -1,10 +1,18 @@
-import type { Deck } from '@values-cards/shared';
+import { DeckSchema, type Deck } from '@values-cards/shared';
 import leadershipForty from '@values-cards/decks/decks/leadership-40.json';
 import extendedSeventyTwo from '@values-cards/decks/decks/extended-72.json';
 import devTwelve from '@values-cards/decks/decks/dev-12.json';
 
-/** The three bundled decks (PRD §4.1). Custom CSV decks are 03.2. */
-export const BUNDLED_DECKS: Deck[] = [leadershipForty, extendedSeventyTwo, devTwelve] as Deck[];
+/**
+ * The three bundled decks (PRD §4.1). Custom CSV decks are 03.2.
+ *
+ * Parsed rather than cast: `source` defaults to `'bundled'`, and only an actual parse
+ * applies that default — a cast would leave it `undefined` at runtime while the types
+ * claimed otherwise.
+ */
+export const BUNDLED_DECKS: Deck[] = [leadershipForty, extendedSeventyTwo, devTwelve].map((deck) =>
+  DeckSchema.parse(deck),
+);
 
 const PREVIEW_COUNT = 3;
 
