@@ -3,10 +3,14 @@
  * WebKit compositing check for the card flip (01.5).
  *
  * `.card-face` combines three things WebKit has historically handled badly
- * together: `backdrop-filter` (from `.glass-panel`), `backface-visibility:
+ * together: `backdrop-filter` (from `.panel`), `backface-visibility:
  * hidden`, and a `transform-style: preserve-3d` ancestor. WebKit can flatten 3D
  * descendants of a filtered element, which would blank a face or kill the turn
  * outright — and Chromium cannot tell you whether that happens.
+ *
+ * Blur is pack-supplied as of 00.6, so the hazard only exists on a pack that
+ * actually blurs. Pass `VITE_PACK` to match the pack the server was built with
+ * (same env var `packs/index.ts` and `e2e/surface-coverage.spec.ts` read).
  *
  * Deliberately a script, not an `e2e/*.spec.ts`: test discovery is
  * include-by-default (CLAUDE.md), so a spec here would join every `pnpm gate`
@@ -28,6 +32,10 @@ import { devices, webkit } from '@playwright/test';
 const baseURL = process.argv[2] ?? 'http://localhost:5173';
 const OUT = '.webkit-check';
 const failures = [];
+
+// 00.6: blur is a pack property. tactile-warm blurs; aurora sets --panel-blur: none.
+const ACTIVE_PACK = process.env['VITE_PACK'] ?? 'tactile-warm';
+const expectsBlur = ACTIVE_PACK === 'tactile-warm';
 
 function check(label, condition, detail) {
   const status = condition ? 'ok  ' : 'FAIL';
@@ -64,7 +72,15 @@ for (const [label, contextOptions] of [
   // preserve-3d surviving next to backdrop-filter is the whole question.
   check('preserve-3d not flattened', faceDown.transformStyle === 'preserve-3d', faceDown.transformStyle);
   check('backface-visibility honored', faceDown.backfaceVisibility === 'hidden', faceDown.backfaceVisibility);
-  check('backdrop-filter still applied', /blur/.test(faceDown.backdropFilter ?? ''), faceDown.backdropFilter);
+  // Asserted per pack rather than unconditionally: a pack with no blur (aurora) makes
+  // the WebKit hazard vacuous, so demanding blur there would fail the check for being
+  // correct. Still assert the inverse, so "tactile-warm silently lost its blur" cannot
+  // pass by looking like a blur-free pack.
+  if (expectsBlur) {
+    check('backdrop-filter still applied', /blur/.test(faceDown.backdropFilter ?? ''), faceDown.backdropFilter);
+  } else {
+    check(`no backdrop-filter under ${ACTIVE_PACK}`, faceDown.backdropFilter === 'none', faceDown.backdropFilter);
+  }
   check('back face has a painted box', faceDown.backPainted);
   check('no front face while face-down', faceDown.frontMounted === false);
   await page.screenshot({ path: `${OUT}/${label}-face-down.png` });

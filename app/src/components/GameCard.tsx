@@ -108,13 +108,13 @@ export function GameCard({
         <div
           data-testid="card-back"
           aria-hidden="true"
-          className="card-face glass-panel bg-accent"
+          className="card-face panel bg-accent"
           style={{ transform: 'rotateY(180deg)' }}
         />
         {flipped ? null : (
           <div
             data-testid="card-front"
-            className="card-face glass-panel-strong flex flex-col items-center justify-center gap-2 p-4 text-center"
+            className="card-face panel-strong flex flex-col items-center justify-center gap-2 p-4 text-center"
           >
             <h3 className="font-display text-xl font-semibold text-ink">{title}</h3>
             {description ? <p className="text-sm text-ink-muted">{description}</p> : null}

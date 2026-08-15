@@ -4,7 +4,7 @@ export interface ToastProps {
 }
 
 const VARIANT_CLASSES: Record<NonNullable<ToastProps['variant']>, string> = {
-  default: 'glass-panel-strong text-ink',
+  default: 'panel-strong text-ink',
   danger: 'bg-danger text-on-accent',
   success: 'bg-success text-on-accent',
 };

@@ -85,7 +85,7 @@ export function TrimGrid({ cards, cut, limit, onToggleCut, onConfirm }: TrimGrid
       </div>
       <div
         role="list"
-        className="grid grid-cols-2 gap-4 rounded-card glass-panel p-4 sm:grid-cols-3"
+        className="grid grid-cols-2 gap-4 rounded-card panel p-4 sm:grid-cols-3"
       >
         {cards.map((card, index) => {
           const isCut = cut.includes(card.value);

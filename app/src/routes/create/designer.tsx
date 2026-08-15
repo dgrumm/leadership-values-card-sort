@@ -34,7 +34,7 @@ export function Designer({
           value={config.title}
           onChange={(event) => onTitleChange(event.target.value)}
           disabled={disabled}
-          className="rounded-control border border-ink-muted glass-panel-strong px-3 py-2 text-ink"
+          className="rounded-control border border-ink-muted panel-strong px-3 py-2 text-ink"
         />
       </label>
 

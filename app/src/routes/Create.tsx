@@ -74,12 +74,12 @@ export function Create() {
           id="creator-name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="rounded-control border border-ink-muted glass-panel-strong px-3 py-2 text-ink"
+          className="rounded-control border border-ink-muted panel-strong px-3 py-2 text-ink"
         />
       </label>
 
       {!customizing ? (
-        <section className="flex w-full max-w-sm flex-col gap-3 rounded-control border border-ink-muted glass-panel-strong p-4">
+        <section className="flex w-full max-w-sm flex-col gap-3 rounded-control border border-ink-muted panel-strong p-4">
           <h2 className="font-display text-xl font-semibold">{config.title}</h2>
           <p className="text-sm text-ink-muted">
             {config.deck.name} ({config.deck.cards.length} cards) · {config.rounds.map((round) => round.name).join(' → ')}
