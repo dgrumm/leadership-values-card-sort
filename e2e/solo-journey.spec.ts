@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { sortTopCard, turnOverIfFaceDownWithKeyboard } from './deck';
 
 // dev-12 deck, rounds 12 -> keep 8 -> keep 3 (ranked) — app/src/routes/Sort.tsx's demo config.
 
@@ -19,7 +20,7 @@ test('solo journey (pointer): sort -> trim -> next round -> rank -> result', asy
   // Round 1 (keep 8 of 12): deliberately over-keep 10, discard 2, to force TrimGrid.
   for (let i = 0; i < 12; i++) {
     const remainingBefore = 12 - i;
-    await page.getByRole('button', { name: i < 10 ? /^Keep / : /^Discard / }).click();
+    await sortTopCard(page, i < 10 ? 'keep' : 'discard');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
     }
@@ -41,7 +42,7 @@ test('solo journey (pointer): sort -> trim -> next round -> rank -> result', asy
   await expect(page.getByText('8 left')).toBeVisible();
   for (let i = 0; i < 8; i++) {
     const remainingBefore = 8 - i;
-    await page.getByRole('button', { name: i < 3 ? /^Keep / : /^Discard / }).click();
+    await sortTopCard(page, i < 3 ? 'keep' : 'discard');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
     }
@@ -79,6 +80,7 @@ test('solo journey (keyboard-only): sort -> trim -> next round -> rank -> result
     const remainingBefore = 12 - i;
     // 00.4 removed the mount autofocus, so each new card (a remount) needs a Tab first.
     await page.keyboard.press('Tab');
+    await turnOverIfFaceDownWithKeyboard(page);
     await page.keyboard.press(i < 10 ? 'ArrowRight' : 'ArrowLeft');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });
@@ -104,6 +106,7 @@ test('solo journey (keyboard-only): sort -> trim -> next round -> rank -> result
   for (let i = 0; i < 8; i++) {
     const remainingBefore = 8 - i;
     await page.keyboard.press('Tab');
+    await turnOverIfFaceDownWithKeyboard(page);
     await page.keyboard.press(i < 3 ? 'ArrowRight' : 'ArrowLeft');
     if (remainingBefore - 1 > 0) {
       await expect(page.getByText(`${remainingBefore - 1} left`)).toBeVisible({ timeout: 3000 });

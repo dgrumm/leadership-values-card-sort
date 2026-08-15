@@ -77,6 +77,10 @@ export function SortRound({ config, useSortStore }: SortRoundProps) {
         <CardStack
           card={currentCard}
           nextCard={nextCard}
+          // Nothing sorted this round yet = the participant has not begun, so the
+          // deck opens face-down. Anything sorted means this is a resume and the
+          // active card comes back face-up (invariant 4).
+          resumed={state.kept.length + state.discarded.length > 0}
           remaining={state.queue.length}
           onKeep={() => useSortStore.getState().keep(currentCard.value)}
           onDiscard={() => useSortStore.getState().discard(currentCard.value)}

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { turnOverIfFaceDownWithKeyboard } from './deck';
 
 /**
  * A deliberately tiny deck (4 cards, 1 round, keep 2, non-facilitated) so a full round
@@ -120,6 +121,9 @@ test('presence: roster membership, live progress, done, matching avatar hue, no 
   // presses avoids a keypress landing while no card is focused.
   const cardGroupA = pageA.getByRole('group', { name: /card$/ });
   await cardGroupA.focus();
+  // 01.5: the round opens face-down and the arrows are inert until the top card
+  // is turned over. Enter does that from the focused card — keyboard only.
+  await turnOverIfFaceDownWithKeyboard(pageA);
   await pageA.keyboard.press('ArrowRight'); // keep
   await expect(pageA.getByText('3 left')).toBeVisible({ timeout: 5000 });
   await expect(adaRowOnB).toContainText('1 sorted', { timeout: 10_000 });

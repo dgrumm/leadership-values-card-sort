@@ -51,6 +51,14 @@
   /* Glass depth */
   --glass-blur: 16px;
 
+  /*
+   * 3D depth for the card flip (01.5). Applied to the wrapper *around* the
+   * rotating face stack, not the rotating element itself. ~3.5x the 16rem card
+   * cap: shallower reads as a fairground spin, deeper flattens the turn into a
+   * horizontal squash.
+   */
+  --card-perspective: 56rem;
+
   /* Z-index scale (--z-index-* is Tailwind v4's namespace for the `z-*` utilities) */
   --z-index-base: 0;
   --z-index-card: 10;
@@ -192,6 +200,21 @@
 
   .glass-panel-strong {
     background-color: var(--color-glass-strong);
+  }
+
+  /*
+   * One face in the card's two-face flip stack (01.5). Structure only — no fill,
+   * no chrome: the face composes `.glass-panel` / `.glass-panel-strong` for that,
+   * so there is still exactly one glass surface in the system (00.5).
+   *
+   * `backface-visibility` is what makes the flip land the face swap at the 90°
+   * midpoint instead of at flip start.
+   */
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-card);
+    backface-visibility: hidden;
   }
 
   /*

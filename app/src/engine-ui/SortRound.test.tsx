@@ -32,6 +32,14 @@ function renderRound(cfg: GameConfig) {
   return useSortStore;
 }
 
+/**
+ * A fresh round opens face-down (01.5), so anything asserting on the sorting
+ * controls has to begin the round first — the same step a participant takes.
+ */
+async function turnOverFirstCard() {
+  await userEvent.click(screen.getByRole('button', { name: 'Turn over' }));
+}
+
 describe('SortRound', () => {
   it('shows the round name and position in the deck', () => {
     renderRound(config(3));
@@ -42,6 +50,7 @@ describe('SortRound', () => {
     const cfg = config(3, 2);
     const useSortStore = renderRound(cfg);
     const first = useSortStore.getState().queue[0] as string;
+    await turnOverFirstCard();
     await userEvent.click(screen.getByRole('button', { name: `Keep ${first}` }));
     await waitFor(() => expect(screen.getByRole('status', { hidden: true }).textContent).toBe(`Kept ${first}, 1 of 2`));
   });
@@ -50,6 +59,7 @@ describe('SortRound', () => {
     const cfg = config(3, 2);
     const useSortStore = renderRound(cfg);
     const first = useSortStore.getState().queue[0] as string;
+    await turnOverFirstCard();
     await userEvent.click(screen.getByRole('button', { name: `Discard ${first}` }));
     await waitFor(() => expect(screen.getByRole('status', { hidden: true }).textContent).toBe(`Discarded ${first}`));
   });
@@ -58,6 +68,7 @@ describe('SortRound', () => {
     const cfg = config(1, 1);
     renderRound(cfg);
     const cardValue = 'Card 0';
+    await turnOverFirstCard();
     await userEvent.click(screen.getByRole('button', { name: `Keep ${cardValue}` }));
     await waitFor(() => expect(screen.queryByRole('group', { name: `${cardValue} card` })).toBeNull(), {
       timeout: 3000,
