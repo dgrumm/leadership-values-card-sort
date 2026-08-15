@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { CARD_DESCRIPTION_MAX, CARD_VALUE_MAX } from '@values-cards/shared';
 import { parseDeckCsv } from './parse-deck-csv';
 
 describe('parseDeckCsv', () => {
@@ -75,6 +76,33 @@ describe('parseDeckCsv', () => {
     const rows = Array.from({ length: 100 }, (_, i) => `Card ${i},Description ${i}`).join('\n');
     const result = parseDeckCsv(rows, 'My deck');
     expect(result.ok).toBe(true);
+  });
+
+  it('marks the parsed deck as a custom source', () => {
+    const result = parseDeckCsv('Courage,Acting despite fear', 'My deck');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.deck.source).toBe('custom');
+  });
+
+  it('flags over-length value and description with the row and the actual length', () => {
+    const csv = `${'a'.repeat(CARD_VALUE_MAX + 5)},ok\nTrust,${'b'.repeat(CARD_DESCRIPTION_MAX + 12)}`;
+    const result = parseDeckCsv(csv, 'My deck');
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors).toContainEqual({
+      row: 1,
+      message: `Row 1: value is ${CARD_VALUE_MAX + 5} characters (max ${CARD_VALUE_MAX})`,
+    });
+    expect(result.errors).toContainEqual({
+      row: 2,
+      message: `Row 2: description is ${CARD_DESCRIPTION_MAX + 12} characters (max ${CARD_DESCRIPTION_MAX})`,
+    });
+  });
+
+  it('accepts card text exactly at the ceilings', () => {
+    const csv = `${'a'.repeat(CARD_VALUE_MAX)},${'b'.repeat(CARD_DESCRIPTION_MAX)}`;
+    expect(parseDeckCsv(csv, 'My deck').ok).toBe(true);
   });
 
   it('every error carries a row number', () => {

@@ -19,6 +19,7 @@ const CONFIG: GameConfig = {
   title: 'Reveal test',
   deck: {
     name: 'Mini',
+    source: 'bundled',
     cards: [
       { value: 'A', description: 'a' },
       { value: 'B', description: 'b' },

@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { DeckSchema, type Deck } from '@values-cards/shared';
+import { CARD_DESCRIPTION_MAX, CARD_VALUE_MAX, DeckSchema, type Deck } from '@values-cards/shared';
 
 const MAX_CARDS = 100;
 
@@ -51,6 +51,21 @@ export function parseDeckCsv(csvText: string, deckName: string): ParseDeckCsvRes
     if (!value) errors.push({ row: rowNumber, message: `Row ${rowNumber}: empty value` });
     if (!description) errors.push({ row: rowNumber, message: `Row ${rowNumber}: empty description` });
 
+    // Length bounds are checked per row so the message names the offending row and the
+    // actual overage. Left to DeckSchema they'd surface as one opaque zod issue.
+    if (value.length > CARD_VALUE_MAX) {
+      errors.push({
+        row: rowNumber,
+        message: `Row ${rowNumber}: value is ${value.length} characters (max ${CARD_VALUE_MAX})`,
+      });
+    }
+    if (description.length > CARD_DESCRIPTION_MAX) {
+      errors.push({
+        row: rowNumber,
+        message: `Row ${rowNumber}: description is ${description.length} characters (max ${CARD_DESCRIPTION_MAX})`,
+      });
+    }
+
     if (value) {
       const key = value.toLowerCase();
       if (seen.has(key)) {
@@ -77,7 +92,9 @@ export function parseDeckCsv(csvText: string, deckName: string): ParseDeckCsvRes
     return { ok: false, errors };
   }
 
-  const parsed = DeckSchema.safeParse({ name: deckName, cards });
+  // `source: 'custom'` is what distinguishes this from a bundled deck downstream — the
+  // name can't, since a facilitator may legitimately name their deck "Dev 12".
+  const parsed = DeckSchema.safeParse({ name: deckName, cards, source: 'custom' });
   if (!parsed.success) {
     return { ok: false, errors: parsed.error.issues.map((issue) => ({ row: 0, message: issue.message })) };
   }

@@ -129,6 +129,17 @@
       "status": "done"
     },
     {
+      "id": "02.4",
+      "title": "Reveal snapshots store deck indices",
+      "phase": "02-multiplayer",
+      "depends_on": [
+        "02.2",
+        "02.3",
+        "03.2"
+      ],
+      "status": "not-started"
+    },
+    {
       "id": "03.1",
       "title": "Game designer",
       "phase": "03-config",
@@ -172,7 +183,8 @@
       "title": "Export",
       "phase": "04-finish",
       "depends_on": [
-        "02.3"
+        "02.3",
+        "02.4"
       ],
       "status": "not-started"
     },
@@ -191,6 +203,7 @@
         "02.1",
         "02.2",
         "02.3",
+        "02.4",
         "03.1",
         "03.2",
         "03.3",

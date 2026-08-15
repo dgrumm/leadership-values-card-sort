@@ -11,7 +11,7 @@ const BASE_STATE: SessionState = {
   code: 'ABC123',
   config: {
     title: 'Test',
-    deck: { name: 'Test deck', cards: [{ value: 'Focus', description: 'd' }] },
+    deck: { name: 'Test deck', cards: [{ value: 'Focus', description: 'd' }], source: 'bundled' },
     rounds: [
       { name: 'Round 1', keep: 1, rank: false },
       { name: 'Round 2', keep: 1, rank: false },

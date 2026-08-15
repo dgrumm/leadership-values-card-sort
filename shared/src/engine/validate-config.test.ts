@@ -7,6 +7,7 @@ function deckOf(count: number): Deck {
   return {
     name: 'Deck',
     cards: Array.from({ length: count }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })),
+    source: 'bundled',
   };
 }
 

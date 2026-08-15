@@ -27,10 +27,10 @@ export function Designer({
   const result = validateConfig(config);
   const errors = result.ok ? [] : result.errors;
 
-  // A "custom" deck is anything that isn't one of the bundled decks by name. Tracking
-  // the last bundled deck picked (defaulting to the config's deck if it's already
-  // bundled, else the first bundled deck) is what "remove custom deck" reverts to.
-  const isCustomDeck = !BUNDLED_DECKS.some((deck) => deck.name === config.deck.name);
+  // `source` rather than the name: a facilitator may legitimately name their CSV deck
+  // "Dev 12", and the name is a display label (it seeds the game title). Tracking the
+  // last bundled deck picked is what "remove custom deck" reverts to.
+  const isCustomDeck = config.deck.source === 'custom';
   const [lastBundledDeck, setLastBundledDeck] = useState<Deck>(
     () => BUNDLED_DECKS.find((deck) => deck.name === config.deck.name) ?? BUNDLED_DECKS[0]!,
   );

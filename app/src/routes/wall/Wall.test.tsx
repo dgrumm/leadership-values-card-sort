@@ -12,7 +12,7 @@ function baseState(overrides: Partial<SessionState> = {}): SessionState {
     code: 'ABC123',
     config: {
       title: 'Values Night',
-      deck: { name: 'Deck', cards: [{ value: 'Curiosity', description: 'd1' }, { value: 'Courage', description: 'd2' }] },
+      deck: { name: 'Deck', cards: [{ value: 'Curiosity', description: 'd1' }, { value: 'Courage', description: 'd2' }], source: 'bundled' },
       rounds: [{ name: 'Round 1', keep: 2, rank: false }],
       theme: { variant: 'default' },
       facilitated: false,

@@ -15,7 +15,7 @@ function initialState(): SessionState {
     code: 'ABC123',
     config: {
       title: 'Prop test',
-      deck: { name: 'Deck', cards: DECK_CARDS },
+      deck: { name: 'Deck', cards: DECK_CARDS, source: 'bundled' as const },
       rounds: [
         { name: 'R1', keep: 2, rank: false },
         { name: 'R2', keep: 1, rank: true },

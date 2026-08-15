@@ -8,7 +8,7 @@ import { CustomDeckPanel } from './custom-deck-panel';
 
 afterEach(cleanup);
 
-const SMALL_DECK = { name: 'Starter', cards: Array.from({ length: 4 }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })) };
+const SMALL_DECK = { name: 'Starter', cards: Array.from({ length: 4 }, (_, i) => ({ value: `Card ${i}`, description: `Desc ${i}` })), source: 'bundled' as const };
 
 function baseConfig(deck: Deck = SMALL_DECK, keep = 8): GameConfig {
   return {
